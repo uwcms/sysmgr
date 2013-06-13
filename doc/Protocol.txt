@@ -1,0 +1,378 @@
+=== BASICS ===
+
+The system manager presents a line-based protocol to access the crate's status
+and controls.
+
+In this document -> and <- at the beginning of lines will be used to indicate
+commands sent to and from the service, respectively.
+
+Commands consist of whitespace separated text.  "" or '' may be used to supply
+multi-word parameters.  Responses will end with a blank line.
+
+Integer fields may be specified either in decimal, or in hexadecmial with the
+prefix '0x'.  Both requests and responses may contain either format.  This
+draft protocol may standardize on one or the other for responses.
+
+-
+
+All commands sent to the system manager must be prefixed by an even uint32_t.
+All replies to this message will be prefixed with the same uint32_t, so they
+can be distinguished if multiple commands are processed simultaneously on a
+given connection, and so that incoming events are not confused.  All messages
+originating from the system manager will be prefixed by an odd uint32_t.  This
+will generally be omitted from the examples in this document.  An example of
+this would be:
+
+-> 0 AUTHENTICATE "password"
+<- 0 PRIVILEGE MANAGE
+-> 2 LIST_CRATES
+<- 2 1 1 VadaTech
+<- 1 EVENT 1 4 "WISC CTP-6" "FPGA Config" 1 4
+
+-
+
+At any time you may recieve
+<- 2 ERROR "Message Here"
+<- 2
+to indicate a failure.
+
+If the error is in response to a command you have sent, the command has
+failed.  If the error is not in response to a command you have sent, it may be
+fatal to the connection.
+
+The final version of this protocol may include an error number with these
+messages.
+
+-
+
+Access to this service is authorized by an optional password, which sets the
+level of available access: READ, MANAGE, or RAW.  If you do not authenticate,
+you will have access to the highest level availble with a blank password.
+
+
+
+=== COMMANDS ===
+
+-> AUTHENTICATE "password"
+<- PRIVILEGE {NONE|READ|MANAGE|RAW}
+
+Grants your connection the highest level of access associated with the
+supplied password.  Your current privilege level will be returned.
+
+NOTE: Before ever calling AUTHENTICATE, you have the privilege level
+equivalent to 'AUTHENTICATE ""'
+NOTE: If your privilege level is NONE, any other command (or a number of
+failures) will terminate your session.
+
+NOTE: Your privilege will never be downgraded.
+
+
+---
+
+
+-> LIST_CRATES
+<- 1 0 VadaTech "Left Crate"
+<- 2 1 VadaTech "Right Crate"
+<- 3 1 NAT "Spare Crate"
+
+Provides you a list of crates and basic information on each, presently just
+the crate number and the MCH type, as configured.
+
+Fields
+  Crate Number
+  Connected = 1; Not Connected = 0
+  MCH Manufacturer
+  Description, from the config file.
+
+NOTE: Temporary interruptions can easily happen 'Not Connected' does not mean
+'completely offline'.
+
+
+---
+
+
+-> LIST_CARDS 1
+<- 1 4 "WISC CIOX"
+<- 4 4 "WISC CTP-6"
+<- 6 4 "WISC CIOX"
+<- 7 4 "WISC CIOX"
+<- 8 4 "WISC CTP-6"
+<- 10 4 "WISC CTP-6"
+<- 11 4 "WISC CTP-6"
+<- 12 4 "WISC CIOX"
+<- 13 4 "BU AMC13"
+
+Returns a list of the cards in a given crate, and basic information on each.
+  FRU MState Name
+
+An MState of 255 indicates the hotswap sensor was unreadable.
+
+NOTE: If the specified crate is offline, this data may be stale.
+
+
+---
+
+
+-> LIST_SENSORS 1 13
+<- "Bottom Temp" T "degrees C" "C"
+<- "Top Temp" T "degrees C" "C"
+<- "+12V" T "Volts" "V"
+<- "+3.3V" T "Volts" "V"
+<- "+2.5V" T "Volts" "V"
+<- "Pwr Good" D "unspecified" "unspecified"
+
+Returns a list of the sensors available on a given card, and basic information
+on each.
+  Name ReadingType LongUnitName ShortUnitName
+
+  ReadingType is:
+    O OEM
+    E Event Only
+    T Threshold
+    D Discrete
+
+
+---
+
+
+-> READ_SENSOR 1 4 "Bottom Temp"
+<- RAW 71
+<- THRESHOLD 21.750
+<- EVENTMASK 0x0000
+
+Fetches and returns the current readings for the given sensor specified by
+CrateNo, FRU, SensorName.  If the given Crate/FRU/Name is not unique, any
+of the sensors may be read.
+
+If the sensor is not a threshold type, the THRESHOLD response will not be
+returned.
+
+
+---
+
+
+-> SUBSCRIBE 0xff 0xff "" "" 0x7fff 0x7fff
+<- FILTER 1 0xff 0xff "" "" 0x7fff 0x7fff
+
+Subscribes this connection to alerts when matching events occur.
+
+Filter Fields:
+  CrateNo
+  FRU
+  CardName
+  SensorName
+  AssertionBitmask (Bitmask indicating which offsets' assertions match)
+  DeassertionBitmask (Bitmask indicating which offsets' deassertions match)
+
+To match any value, for numeric fields, send 0xff, for string fields send ""
+
+This will return a filter ID.
+
+Once registered, you will spontaneously receive EVENT messages matching your
+filters:
+
+<- EVENT 1 2 4 "WISC CTP-6" "FPGA Config" 1 4
+
+Event Fields:
+  FilterID
+  CrateNo
+  FRU
+  CardName
+  SensorName
+  Assertion [0=Deassertion, 1=Assertion]
+  Offset
+
+
+---
+
+
+-> SUBSCRIPTIONS
+<- FILTER 1 0xff 0xff "WISC CTP-6" "" 0x7fff 0x7fff
+<- FILTER 2 0xff 0xff "" "FPGA Config" 1 0x000c 0x0000
+<- FILTER 3 0xff 0xff "WISC CTP-6" "" 0x7fff 0x7fff
+
+Returns a list of all active filters, in the same format as SUBSCRIBE.
+
+
+---
+
+
+-> UNSUBSCRIBE 1
+<- UNSUBSCRIBED
+
+Removes the event subscription filter with the given ID.
+
+
+---
+
+
+-> GET_SDR 2 4
+<- 0b 00 51 11 1b 82 0b 80 70 00 10 ff c1 67 00 c9 57 49 53 43 20 43 49 4f 58 00 00 00 00 00 00 00
+
+Returns the FRU Locator Record from the SDR repository for the card in the
+specified slot as a hexadecimal string.
+
+-> GET_SDR 2 4 "FPGA Config"
+<- 64 00 51 01 3b 82 00 2b c1 62 67 40 c0 6f fd 77 00 00 ff 03 c0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 33 cb 46 50 47 41 20 43 6f 6e 66 69 67 00 00 00 00 00
+
+Returns the sensor definition SDR record for the specified sensor as a
+hexadecimal string.
+
+
+---
+
+
+-> GET_THRESHOLDS 2 4 "Bottom Temp"
+<- - - - 0x8c 0xb4 0xdc
+
+Returns the following threshold values in order.  '-' is returned for
+un-readable thresholds.
+
+  Lower Noncritical
+  Lower Critical
+  Lower Nonrecoverable
+  Upper Noncritical
+  Upper Critical
+  Upper Nonrecoverable
+
+NOTE: These are returned as raw reading values directly.  You may need to read
+and process the SDR (see GET_SDR) to make sense of them.
+
+
+---
+
+
+[Requires MANAGE privilege]
+
+-> SET_THRESHOLDS 2 4 "Bottom Temp" - - - 0x8c 0xb4 0xdc
+<- - - - 0x8c 0xb4 0xdc
+
+Sets the threshold values, in the same order as GET_THRESHOLDS.
+Returns the result of a GET_THRESHOLDS command after the set is completed.
+'-' indicates that a particular threshold should not be modified.
+
+
+---
+
+
+-> GET_EVENT_ENABLES 2 4 "Bottom Temp"
+<- 1 1 0x0a95 0x0a95
+
+Returns the following fields in order:
+  Event messages enabled at all
+  Sensor scanning enabled
+  Assertion Bitmask
+  Deassertion Bitmask
+
+The (de)assertion bitmask indicates what states have (de)assertion events
+enabled.
+
+For threshold sensors, the order of states is:
+ 0 Lower noncritical going low
+ 1 Lower noncritical going high
+ 2 Lower critical going low
+ 3 Lower critical going high
+ 4 Lower nonrecoverable going low
+ 5 Lower nonrecoverable going high
+ 6 Upper noncritical going low
+ 7 Upper noncritical going high
+ 8 Upper critical going low
+ 9 Upper critical going high
+ a Upper nonrecoverable going low
+ b Upper nonrecoverable going high
+
+
+---
+
+
+[Requires MANAGE privilege]
+
+-> SET_EVENT_ENABLES 2 4 "Bottom Temp" 1 1 0x0a95 0x0a95
+
+Sets the fields returned by GET_EVENT_ENABLES
+
+WARNING: Disabling certain event messages can disrupt general system manager
+         functionality.  Be careful with what you turn off.
+
+
+---
+
+
+-> GET_HYSTERESIS 2 4 "Bottom Temp"
+<- 0x02 0x02
+
+Returns the sensor hysteresis.
+Return:
+  Going-Positive Hysteresis
+  Going-Negative Hysteresis
+
+NOTE: The returned values are in terms of raw sensor readings.
+
+
+---
+
+
+[Requires RAW privilege]
+
+-> RAW_CARD 1 4 0x32 0x0f 0x81 0x32
+<- 0x00
+
+Sends a raw command to the Crate/Card specified.
+  CrateNo FRU NetFN Cmd Param_List
+
+Returns the raw response.
+  CmplCode Param_List
+
+WARNING: With this you can:
+         * Damage Hardware
+         * Disrupt System Manager operation
+         * Disrupt crate operation
+         * Jam things in a way that requires physical intervention
+
+
+---
+
+
+[Requires RAW privilege]
+
+-> RAW_FORWARDED 1 0 0x82 7 0x78 0x32 0x0f 0x81 0x32
+<- 0x00
+
+Sends a raw command to the address specified.
+  Crate BridgeChannel BridgeAddr TargetChannel TargetAddr NetFN Cmd Param_List
+
+Returns the raw response.
+  CmplCode Param_List
+
+WARNING: With this you can:
+         * Damage Hardware
+         * Disrupt System Manager operation
+         * Disrupt crate operation
+         * Jam things in a way that requires physical intervention
+
+
+---
+
+
+[Requires RAW privilege]
+
+-> RAW_DIRECT 1 0 0x20 0x06 0x01
+<- 0x00 0x01 0x81 0x01 0x75 0x02 0xbf 0x32 0x5d 0x00 0x25 0x83
+
+
+Sends a raw command to the address specified.
+  Crate TargetChannel TargetAddr NetFN Cmd Param_List
+
+  TargetChannel is ignored for TargetAddr 0x20
+  TargetAddr is one of:
+    0x20  Shelf (lan connection target without forwarding)
+    Other IPMB address
+
+Returns the raw response.
+  CmplCode Param_List
+
+WARNING: With this you can:
+         * Damage Hardware
+         * Disrupt System Manager operation
+         * Disrupt crate operation
+         * Jam things in a way that requires physical intervention

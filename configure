@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+
+sub include_dag {
+	my @Headers = @{shift()};
+	my @BaseClasses = @{shift()};
+
+	my %ClassFiles;
+	my %AllClasses = map { ($_, 1) } @BaseClasses;
+	my %ClassGraph;
+
+	for my $Header (@Headers) {
+		next unless (-f $Header);
+		open(my $Hfd, '<', $Header) or die "Unable to read \"$Header\": $!";
+		while (<$Hfd>) {
+			next unless /^\s*class\s+(\S+)(?:\s*:\s+([^{]+))?(?:{|$)/;
+			my $Class = $1;
+
+			$AllClasses{$Class} = 1;
+			$ClassFiles{$Class} = $Header;
+			if (defined $2) {
+				my @Parents = split /,/,$2;
+				while (my $Parent = pop @Parents) {
+					$Parent =~ s/^\s*(?:private|public|protected)?\s*(\S+)\s*$/$1/g;
+					$ClassGraph{$Parent} = [] unless (defined $ClassGraph{$Parent});
+					push @{$ClassGraph{$Parent}}, $Class;
+				}
+			}
+
+			last;
+		}
+		close($Hfd);
+	}
+
+	my @Flat;
+	sub flatten_dag {
+		my $Class = shift;
+		my $AllClasses = shift;
+		my $ClassGraph = shift;
+		my $Flat = shift;
+
+		return unless ($AllClasses->{$Class});
+
+		if ($ClassGraph->{$Class}) {
+			# I have children.
+
+			for my $Child (sort { $b cmp $a } @{$ClassGraph->{$Class}}) {
+				flatten_dag($Child, $AllClasses,$ClassGraph,$Flat);
+			}
+		}
+
+		push @$Flat, $Class;
+		$AllClasses->{$Class} = 0;
+	}
+	for my $BaseClass (@BaseClasses) {
+		flatten_dag($BaseClass, \%AllClasses, \%ClassGraph, \@Flat);
+	}
+	@Flat = reverse @Flat;
+
+	return (\@Flat, \%ClassFiles);
+}
+
+#            #
+# Card Index #
+#            #
+
+(my $CardList, my $CardFiles) = include_dag([glob('cards/*.h')],['Card']);
+
+open(I, '>', 'cardindex.inc') or die "Cannot open cardindex.inc for writing: $!";
+for my $Card (reverse @$CardList) {
+	printf I "REGISTER_CARD(%s);\n", $Card;
+}
+close(I);
+
+open(H, '>', 'cardindex.h') or die "Cannot open cardindex.h for writing: $!";
+for my $Card (@$CardList) {
+	next if ($Card eq 'Card');
+	printf H "#include \"%s\"\n", $CardFiles->{$Card};
+}
+close(H);
+
+
+
+#               #
+# Command Index #
+#               #
+
+(my $CommandList, my $CommandFiles) = include_dag([glob('commands/*.h')],['Command']);
+
+open(I, '>', 'commandindex.inc') or die "Cannot open commandindex.inc for writing: $!";
+for my $Command (@$CommandList) {
+	next if ($Command eq 'Command');
+	printf I "REGISTER_COMMAND(%s);\n", substr($Command, length('Command_'));
+}
+close(I);
+
+open(H, '>', 'commandindex.h') or die "Cannot open commandindex.h for writing: $!";
+for my $Command (@$CommandList) {
+	next if ($Command eq 'Command');
+	printf H "#include \"%s\"\n", $CommandFiles->{$Command};
+}
+close(H);
