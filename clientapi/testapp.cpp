@@ -7,7 +7,7 @@
 #define	INTERACT
 #define	THRESHOLD
 #undef	SET_THRESHOLD
-#define	RAW
+#undef	RAW
 
 static inline std::string stdsprintf(const char *fmt, ...) {
 	va_list va;
