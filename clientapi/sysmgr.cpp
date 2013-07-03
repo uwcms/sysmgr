@@ -10,6 +10,11 @@
 #include "sysmgr.h"
 #include "../scope_lock.h"
 
+#ifdef __APPLE__
+#define MSG_NOSIGNAL 0
+#endif
+
+
 #define MAX_LINE_LENGTH 1024
 
 namespace sysmgr {
