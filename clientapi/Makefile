@@ -1,9 +1,6 @@
 DEPOPTS = -MMD -MF .$@.dep -MP
 CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread -fPIC
 
-IPMILIBS = -I ../../../freeipmi-1.2.2_built/include \
-	   -L ../../../freeipmi-1.2.2_built/lib \
-	   -lfreeipmi 
 
 all: libsysmgr.so testapp tags
 
