@@ -14,7 +14,6 @@ namespace sysmgr {
 
 	class remote_exception : public sysmgr_exception {
 		public:
-			const std::string message;
 			remote_exception(const std::string &message) : sysmgr_exception(message) { };
 	};
 
