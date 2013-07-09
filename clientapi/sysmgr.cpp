@@ -778,4 +778,21 @@ namespace sysmgr {
 			raw.push_back(static_cast<char>(parse_uint8(*it)));
 		return raw;
 	}
+	std::string sysmgr::get_slotstring(uint8_t fru)
+	{
+		if (fru == 2 || fru == 3)
+			return stdsprintf("MCH%hhu", fru-1);
+		else if (fru >= 5 && fru <= 16)
+			return stdsprintf("AMC%02hhu", fru - 4);
+		else if (fru == 30)
+			return "AMC13";
+		else if (fru == 29)
+			return "AMC14";
+		else if (fru == 40 || fru == 41)
+			return stdsprintf("CU%hhu", fru - 39);
+		else if (fru >= 50 & fru <= 53)
+			return stdsprintf("PM%hhu", fru - 49);
+		else
+			return stdsprintf("FRU%d", fru);
+	};
 };

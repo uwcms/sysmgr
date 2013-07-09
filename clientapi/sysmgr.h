@@ -163,5 +163,7 @@ namespace sysmgr {
 			std::string raw_card(uint8_t crate, uint8_t fru, std::string cmd);
 			std::string raw_forwarded(uint8_t crate, uint8_t bridgechan, uint8_t bridgeaddr, uint8_t targetchan, uint8_t targetaddr, std::string cmd);
 			std::string raw_direct(uint8_t crate, uint8_t targetchan, uint8_t targetaddr, std::string cmd);
+
+			static std::string get_slotstring(uint8_t fru);
 	};
 };
