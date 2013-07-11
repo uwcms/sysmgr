@@ -19,7 +19,7 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
+#include <iostream>
 
 #include "sysmgr.h"
 #include "Crate.h"
@@ -191,7 +191,7 @@ void Client::selected_read()
 		this->fd = -1;
 		return;
 	}
-	std::string readbuf(inbuf);
+	readbuf += inbuf;
 
 	if (readbuf.length() > PROTOCOL_MAX_LINE_LENGTH && readbuf.find('\n') == std::string::npos) {
 		// Protocol Error.  Maximum Line Length Exceeded.
@@ -205,7 +205,10 @@ void Client::selected_read()
 	while ((nextnl = readbuf.find('\n')) != std::string::npos) {
 		std::string line = readbuf.substr(0, nextnl);
 		if (nextnl+1 < readbuf.length())
+		{
+			std::cerr << "readbuf not empty >" << readbuf << "<" << std::endl;
 			readbuf = readbuf.substr(nextnl+1);
+		}
 		else
 			readbuf = "";
 
