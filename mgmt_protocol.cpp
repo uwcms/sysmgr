@@ -1,3 +1,21 @@
+/*
+ *
+ * 	 mgmt_protocol.cpp
+ *
+ * 	 classes for sysmgr client handling   by  University of Wisconsin
+ *
+ *
+ * $Author$
+ * $Revision$
+ * $Date$
+ *
+ *
+ */
+
+
+
+
+
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -173,9 +191,9 @@ void Client::selected_read()
 		this->fd = -1;
 		return;
 	}
-	this->readbuf += inbuf;
+	std::string readbuf(inbuf);
 
-	if (this->readbuf.length() > PROTOCOL_MAX_LINE_LENGTH && this->readbuf.find('\n') == std::string::npos) {
+	if (readbuf.length() > PROTOCOL_MAX_LINE_LENGTH && readbuf.find('\n') == std::string::npos) {
 		// Protocol Error.  Maximum Line Length Exceeded.
 		dmprintf("Socket connection %d closed: Oversided line read.\n", this->fd);
 		close(this->fd);
@@ -184,12 +202,12 @@ void Client::selected_read()
 	}
 
 	size_t nextnl;
-	while ((nextnl = this->readbuf.find('\n')) != std::string::npos) {
-		std::string line = this->readbuf.substr(0, nextnl);
-		if (nextnl+1 < this->readbuf.length())
-			this->readbuf = this->readbuf.substr(nextnl+1);
+	while ((nextnl = readbuf.find('\n')) != std::string::npos) {
+		std::string line = readbuf.substr(0, nextnl);
+		if (nextnl+1 < readbuf.length())
+			readbuf = readbuf.substr(nextnl+1);
 		else
-			this->readbuf = "";
+			readbuf = "";
 
 
 #ifdef DEBUG_SOCKET_FLOW
@@ -264,7 +282,8 @@ void Client::process_command(std::string line)
 	}
 	catch (Command::ProtocolParseException &e) {
 		msgid = this->get_next_out_msgid();
-		this->write(stdsprintf("%d ERROR Unparsable command string: %s\n%d\n", msgid, e.get_message().c_str(), msgid));
+		this->write(stdsprintf("%d ERROR Unparsable command string: %s in >%s< of >%s<\n%d\n", 
+			msgid, e.get_message().c_str(), cmd[0].c_str(), line.c_str(), msgid));
 		return;
 	}
 
