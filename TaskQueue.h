@@ -1,3 +1,18 @@
+/*
+ *
+ * 	 TaskQueue.h	by  University of Wisconsin
+ *
+ * 	 task queue of sysmgr: one TaskQueue per crate waits for ScheduledTasks and executes them
+ *
+ *
+ * $Author$
+ * $Revision$
+ * $Date$
+ *
+ *
+ */
+
+
 #ifndef _TASKQUEUE_H
 #define _TASKQUEUE_H
 
@@ -22,6 +37,7 @@ class TaskQueue {
 	protected:
 		taskid_t next_id;
 		pthread_mutex_t lock;
+		pthread_cond_t queueNotEmpty;
 
 		class ScheduledTask {
 			protected:
@@ -49,6 +65,7 @@ class TaskQueue {
 
 		   assert(!pthread_mutex_init(&this->lock, &attr));
 		   pthread_mutexattr_destroy(&attr);
+		   assert(!pthread_cond_init(&queueNotEmpty, NULL));
 		};
 };
 
