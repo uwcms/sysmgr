@@ -1,4 +1,20 @@
+/*
+ *
+ * 	 TaskQueue.cpp
+ *
+ * 	 methods of sysmgr class TaskQueue    by  University of Wisconsin
+ *
+ *
+ * $Author$
+ * $Revision$
+ * $Date$
+ *
+ *
+ */
+
+
 #include <queue>
+#include <iostream>
 #include <time.h>
 #include <unistd.h>
 
@@ -10,6 +26,7 @@ TaskQueue::taskid_t TaskQueue::schedule(time_t when, callback<void> cb, void *cb
 
 	TaskQueue::taskid_t id = this->next_id++;
 	queue.push(ScheduledTask(id, when, cb, cb_data));
+	pthread_cond_signal( &queueNotEmpty );
 	return id;
 }
 
@@ -32,9 +49,20 @@ int TaskQueue::run_until(time_t stop_after)
 {
 	int processed = 0;
 	time_t now = time(NULL);
+	timespec dt;
+	dt.tv_sec = now + 1;
+	dt.tv_nsec = 0;
+
 	while (1) {
 		scope_lock llock(&this->lock);
 
+		do
+		{
+			dt.tv_sec = time(NULL) + 1;
+			pthread_cond_timedwait( &this->queueNotEmpty, &this->lock, &dt );
+		} while ( queue.empty() );
+
+		now = time(NULL);
 		ScheduledTask e = queue.top();
 		if (e.when <= now) {
 			queue.pop();
@@ -42,16 +70,11 @@ int TaskQueue::run_until(time_t stop_after)
 			llock.unlock();
 			e.cb(e.cb_data);
 			llock.lock();
-
 			processed++;
 		}
 		else {
 			if (stop_after && stop_after < now)
 				return processed;
-			else {
-				sleep(1);
-				now = time(NULL);
-			}
 		}
 	}
 }
