@@ -583,7 +583,7 @@ void Crate::ipmi_connect()
 				4,							// privilege_level
 				0,							// cipher_suite_id
 				0,							// session_timeout
-				0,							// retransmission_timeout
+				5,							// retransmission_timeout
 				IPMI_WORKAROUND_FLAGS_OUTOFBAND_2_0_OPEN_SESSION_PRIVILEGE,	// workaround_flags
 #ifdef IPMI_TRACE
 				IPMI_FLAGS_DEBUG_DUMP		// flags
@@ -605,7 +605,7 @@ void Crate::ipmi_connect()
 				this->ipmi15_authentication_type,	// authentication_type
 				4,									// privilege_level
 				0,									// session_timeout
-				0,									// retransmission_timeout
+				5,									// retransmission_timeout
 				IPMI_WORKAROUND_FLAGS_DEFAULT,		// workaround_flags
 #ifdef IPMI_TRACE
 				IPMI_FLAGS_DEBUG_DUMP				// flags
