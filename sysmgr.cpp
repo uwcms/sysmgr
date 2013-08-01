@@ -50,98 +50,6 @@ void fiid_dump(fiid_obj_t obj)
 }
 
 
-void handleflash(void *cb_crate) {
-	Crate *crate = (Crate*)cb_crate;
-
-	fiid_obj_t msg_body_handle = fiid_obj_create(tmpl_ipmb_msg);
-	fiid_obj_set_all(msg_body_handle, "\x0f\x81\x64", 3);
-
-	//dmprintf("C%d: Sending Handle Command\n", crate->get_number());
-	crate->send_bridged(0, 0x82, 7, 0x70+(2*10), 0x32, msg_body_handle, NULL);
-	// DI(ipmi_cmd_ipmb(crate->ctx.ipmi, 0, 0x72, 0, 0x32, msg_body_handle, msg_body_rs));
-
-	fiid_obj_destroy(msg_body_handle);
-
-	THREADLOCAL.taskqueue.schedule(time(NULL)+60, callback<void>::create<handleflash>(), crate);
-}
-
-void writeout_state(void *cb_crate)
-{
-	Crate *crate = (Crate*)cb_crate;
-
-	char fnamebuf[40];
-	snprintf(fnamebuf, 40, "/tmp/crate%dstate.txt", crate->get_number());
-	FILE *outf = fopen(fnamebuf, "w");
-	assert(outf);
-
-	if (!crate->ctx.ipmi) {
-		fprintf(outf, "Crate %d is currently offline.\n", crate->get_number());
-	}
-	else {
-		std::vector<Sensor*> sensors[256];
-		std::vector<Sensor*>::iterator iterators[256];
-
-		bool selected_a_fru = false;
-
-		for (int fru = 0; fru < 256; fru++) {
-			Card *card = crate->get_card(fru);
-			if (card) {
-				HotswapSensor *hotswap = card->get_hotswap_sensor();
-				if (hotswap)
-					fprintf(outf, " %11s M%hhu ", card->get_slotstring().c_str(), hotswap->get_state());
-				else
-					fprintf(outf, " %-11s M- ", card->get_slotstring().c_str());
-				sensors[fru] = card->get_sensors();
-				iterators[fru] = sensors[fru].begin();
-
-				selected_a_fru = true;
-			}
-			else {
-				//fprintf(outf, "       Empty ");
-			}
-		}
-		if (selected_a_fru)
-			fprintf(outf, "\n");
-		for (int fru = 0; fru < 256; fru++) {
-			Card *card = crate->get_card(fru);
-			if (card)
-				fprintf(outf, "%15.15s ", card->get_name().c_str());
-		}
-
-		if (!selected_a_fru) {
-			fprintf(outf, "Crate %d has no detected cards.\n", crate->get_number());
-		}
-		else {
-			fprintf(outf, "\n");
-			fprintf(outf, "\n");
-		}
-
-		bool done;
-		do {
-			done = true;
-			for (int fru = 0; fru < 256; fru++) {
-				if (!crate->get_card(fru))
-					continue;
-
-				if (iterators[fru] == sensors[fru].end()) {
-					fprintf(outf, "%15s ", "");
-					continue;
-				}
-				else {
-					fprintf(outf, "%15.15s ", (*iterators[fru])->get_name().c_str());
-					iterators[fru]++;
-					done = false;
-				}
-			}
-			fprintf(outf, "\n");
-		} while (!done);
-
-	}
-	fclose(outf);
-
-	THREADLOCAL.taskqueue.schedule(time(NULL)+1, callback<void>::create<writeout_state>(), crate);
-}
-
 void start_crate(void *cb_crate)
 {
 	Crate *crate = (Crate*)cb_crate;
@@ -217,10 +125,6 @@ void *crate_monitor(void *arg)
 	return NULL;
 #endif
 
-
-	//THREADLOCAL.taskqueue.schedule(time(NULL)+10, callback<void>::create<handleflash>(), crate);
-
-	writeout_state(crate);
 
 	THREADLOCAL.taskqueue.schedule(0, callback<void>::create<start_crate>(), crate);
 
