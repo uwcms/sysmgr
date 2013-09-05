@@ -1244,13 +1244,22 @@ Sensor::threshold_data_t Sensor::get_thresholds()
 		THROWMSG(IPMI_LibraryError, "fill_cmd_get_sensor_thresholds() failed");
 	}
 
-	rv = ipmi_cmd_ipmb(this->card->get_crate()->ctx.ipmi,
-			sensor_owner_lun,
-			sensor_owner_id << 1,
-			0,
-			IPMI_NET_FN_SENSOR_EVENT_RQ,
-			get_thresholds_rq,
-			get_thresholds_rs);
+	if (this->card->get_crate()->get_mch() == Crate::NAT) {
+		rv = ipmi_cmd(this->card->get_crate()->ctx.ipmi,
+				sensor_owner_lun,
+				IPMI_NET_FN_SENSOR_EVENT_RQ,
+				get_thresholds_rq,
+				get_thresholds_rs);
+	}
+	else {
+		rv = ipmi_cmd_ipmb(this->card->get_crate()->ctx.ipmi,
+				sensor_owner_lun,
+				sensor_owner_id << 1,
+				0,
+				IPMI_NET_FN_SENSOR_EVENT_RQ,
+				get_thresholds_rq,
+				get_thresholds_rs);
+	}
 	if (rv < 0) {
 		fiid_obj_destroy(get_thresholds_rq);
 		fiid_obj_destroy(get_thresholds_rs);

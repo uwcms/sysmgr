@@ -214,7 +214,7 @@ void Client::selected_read()
 
 
 #ifdef DEBUG_SOCKET_FLOW
-		dmprintf("Read[%d]: %s\n", this->fd, line.c_str());
+		mprintf("Read[%d]: %s\n", this->fd, line.c_str());
 #endif
 		this->process_command(line);
 	}
@@ -245,7 +245,7 @@ void Client::write(std::string data)
 	scope_lock dlock(&this->lock);
 
 #ifdef DEBUG_SOCKET_FLOW
-	dmprintf("Writing[%d]: %s\n", this->fd, data.c_str());
+	mprintf("Writing[%d]: %s\n", this->fd, data.c_str());
 #endif
 
 	if (this->fd != -1)
