@@ -5,6 +5,9 @@
 #include <pthread.h>
 #include <assert.h>
 
+#ifndef _SYSMGR_H
+#define _SYSMGR_H
+
 namespace sysmgr {
 	class sysmgr_exception {
 		public:
@@ -167,3 +170,5 @@ namespace sysmgr {
 			static std::string get_slotstring(uint8_t fru);
 	};
 };
+
+#endif
