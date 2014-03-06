@@ -5,7 +5,7 @@
 
 class WakeSock {
 	protected:
-		int fds[];
+		int fds[2];
 	public:
 		WakeSock() {
 			socketpair(AF_UNIX, SOCK_STREAM, 0, this->fds);
