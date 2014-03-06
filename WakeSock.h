@@ -18,7 +18,7 @@ class WakeSock {
 		};
 		int selectfd() { return this->fds[0]; };
 		void clear() {
-			char *buf[32];
+			char buf[32];
 			while (read(this->fds[0], buf, 32) > 0) {
 				// Clear bytes sent to wake us.
 			}
