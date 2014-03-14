@@ -56,6 +56,8 @@ bool Crate::update_sdr_cache()
 	if (fiid_obj_get(sdr_repository_info_rs, "record_count", &rec_count) < 0)
 		THROWMSG(IPMI_LibraryError, "fiid_obj_get() failed");
 
+	fiid_obj_destroy(sdr_repository_info_rs);
+
 	//dmprintf("C%d: Found %lu SDR Records\n", this->number, rec_count);
 	if (rec_count <= 32)
 		THROW(SDRRepositoryNotPopulatedException);
@@ -767,6 +769,8 @@ int Crate::send_bridged(uint8_t br_channel, uint8_t br_addr, uint8_t channel, ui
 			obj_sm_cmd_rs))) {
 		fiid_obj_destroy(obj_true_hdr_rq);
 		fiid_obj_destroy(obj_true_rq);
+		fiid_obj_destroy(obj_sm_cmd_rq);
+		fiid_obj_destroy(obj_sm_cmd_rs);
 		return rv;
 	}
 
@@ -793,6 +797,9 @@ int Crate::send_bridged(uint8_t br_channel, uint8_t br_addr, uint8_t channel, ui
 	if (msglen < 7 || ipmi_checksum(msgstart, 3) || ipmi_checksum(msgstart, msglen)) {
 		fiid_obj_destroy(obj_true_hdr_rq);
 		fiid_obj_destroy(obj_true_rq);
+		fiid_obj_destroy(obj_sm_cmd_rq);
+		fiid_obj_destroy(obj_sm_cmd_rs);
+		fiid_obj_destroy(msg_rs_hdr);
 		return -1;
 	}
 
@@ -803,6 +810,9 @@ int Crate::send_bridged(uint8_t br_channel, uint8_t br_addr, uint8_t channel, ui
 		if (msglen < 7 || ipmi_checksum(msgstart, 3) || ipmi_checksum(msgstart, msglen)) {
 			fiid_obj_destroy(obj_true_hdr_rq);
 			fiid_obj_destroy(obj_true_rq);
+			fiid_obj_destroy(obj_sm_cmd_rq);
+			fiid_obj_destroy(obj_sm_cmd_rs);
+			fiid_obj_destroy(msg_rs_hdr);
 			return -1;
 		}
 	}
@@ -815,6 +825,9 @@ int Crate::send_bridged(uint8_t br_channel, uint8_t br_addr, uint8_t channel, ui
 	if (cmpl_code) {
 		fiid_obj_destroy(obj_true_hdr_rq);
 		fiid_obj_destroy(obj_true_rq);
+		fiid_obj_destroy(obj_sm_cmd_rq);
+		fiid_obj_destroy(obj_sm_cmd_rs);
+		fiid_obj_destroy(msg_rs_hdr);
 		return cmpl_code;
 	}
 
@@ -825,6 +838,9 @@ int Crate::send_bridged(uint8_t br_channel, uint8_t br_addr, uint8_t channel, ui
 
 	fiid_obj_destroy(obj_true_hdr_rq);
 	fiid_obj_destroy(obj_true_rq);
+	fiid_obj_destroy(obj_sm_cmd_rq);
+	fiid_obj_destroy(obj_sm_cmd_rs);
+	fiid_obj_destroy(msg_rs_hdr);
 
 	return 0;
 }
@@ -888,6 +904,13 @@ Card::Card(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen)
 		this->channel = 7;
 		this->access_addr = 0x82;
 	}
+}
+
+
+Card::~Card() {
+	for (std::map<uint8_t,Sensor*>::iterator it = this->sensors.begin(); it != this->sensors.end(); it++)
+		delete it->second;
+	this->sensors.erase(this->sensors.begin(), this->sensors.end());
 }
 
 Sensor *Card::get_sensor(uint8_t number)

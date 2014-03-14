@@ -150,7 +150,7 @@ class Card {
 			else
 				return stdsprintf("FRU%d", this->fru);
 		}
-		virtual ~Card() { };
+		virtual ~Card();
 
 		virtual Crate *get_crate() { return crate; };
 		virtual uint8_t get_entity_id() { return entity_id; };
