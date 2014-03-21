@@ -16,7 +16,7 @@ class UWCard : public Card {
 		virtual Sensor *instantiate_sensor(uint8_t sensor_number, const void *sdr, uint8_t sdrlen);
 
 		virtual void hotswap_event(uint8_t oldstate, uint8_t newstate);
-		std::string read_ip_config();
+		virtual std::string read_ip_config();
 	protected:
 		virtual void set_clock();
 		virtual void configure_fpga();
