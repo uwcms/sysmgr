@@ -4,6 +4,9 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <errno.h>
+#include <string.h>
+#include <climits>
+#include <cstdio>
 #include <string>
 #include <stdarg.h>
 
@@ -790,7 +793,7 @@ namespace sysmgr {
 			return "AMC14";
 		else if (fru == 40 || fru == 41)
 			return stdsprintf("CU%hhu", fru - 39);
-		else if (fru >= 50 & fru <= 53)
+		else if (fru >= 50 && fru <= 53)
 			return stdsprintf("PM%hhu", fru - 49);
 		else
 			return stdsprintf("FRU%d", fru);
