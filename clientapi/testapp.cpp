@@ -1,5 +1,5 @@
 #include <stdarg.h>
-
+#include <cstdio>
 #include "sysmgr.h"
 
 #undef	NOISY
