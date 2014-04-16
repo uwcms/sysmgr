@@ -6,6 +6,7 @@
 #include <map>
 #include <pthread.h>
 #include <assert.h>
+#include <stdint.h>
 
 #ifndef _SYSMGR_H
 #define _SYSMGR_H

@@ -1,5 +1,6 @@
 #include <stdarg.h>
-#include <cstdio>
+#include <stdio.h>
+#include <sys/time.h>
 #include "sysmgr.h"
 
 #undef	NOISY

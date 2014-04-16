@@ -2,6 +2,7 @@
 #define _CRATE_H
 
 #include <string>
+#include <string.h>
 #include <assert.h>
 #include <map>
 #include <vector>
@@ -145,7 +146,7 @@ class Card {
 				return "AMC14";
 			else if (this->fru == 40 || this->fru == 41)
 				return stdsprintf("CU%hhu", this->fru - 39);
-			else if (this->fru >= 50 & this->fru <= 53)
+                        else if ((this->fru >= 50) && (this->fru <= 53))
 				return stdsprintf("PM%hhu", this->fru - 49);
 			else
 				return stdsprintf("FRU%d", this->fru);
@@ -168,7 +169,7 @@ class Card {
 				return 0xa2;
 			else if (this->fru == 40 || this->fru == 41) // CU
 				return 0xa8 + 2*(this->fru - 40);
-			else if (this->fru >= 50 & this->fru <= 53) // PM
+                        else if ((this->fru >= 50) && (this->fru <= 53)) // PM
 				return 0xc2 + 2*(this->fru - 50);
 			else
 				THROWMSG(InvalidAddressException, "Cannot deduce the address of the %s in %s", this->name.c_str(), this->get_slotstring().c_str());
@@ -332,3 +333,4 @@ class HotswapSensor : public Sensor {
 };
 
 #endif
+

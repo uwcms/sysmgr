@@ -9,6 +9,7 @@
 
 #include "sysmgr.h"
 #include "scope_lock.h"
+#include <limits.h>
 
 DEFINE_EXCEPTION(Protocol_Exception, Sysmgr_Exception);
 

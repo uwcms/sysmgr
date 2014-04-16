@@ -11,6 +11,7 @@
 #include <exception>
 #include <typeinfo>
 #include <confuse.h>
+#include <limits.h>
 
 #include "sysmgr.h"
 #include "scope_lock.h"
@@ -141,7 +142,7 @@ void *crate_monitor(void *arg)
 			// System Exception: Lower backoff cap.
 			if (backoff < 6)
 				backoff++;
-			mprintf("C%d: Caught System Exception: %s.  Restarting Crate %d in %d seconds.\n", crate_no, typeid(typeof(e)).name(), crate_no, (1 << backoff-1));
+			mprintf("C%d: Caught System Exception: %s.  Restarting Crate %d in %d seconds.\n", crate_no, typeid(typeof(e)).name(), crate_no, (1 << (backoff-1)));
 		}
 		catch (Sysmgr_Exception& e) {
 			// Local Exception
@@ -152,12 +153,12 @@ void *crate_monitor(void *arg)
 			else
 				mprintf("C%d: Caught %s on %s:%d in %s()\n", crate_no, e.get_type().c_str(), e.get_file().c_str(), e.get_line(), e.get_func().c_str());
 
-			mprintf("C%d: Restarting Crate %d in %d seconds.\n", crate_no, crate_no, (1 << backoff-1));
+			mprintf("C%d: Restarting Crate %d in %d seconds.\n", crate_no, crate_no, (1 << (backoff-1)));
 		}
 		crate->ipmi_disconnect();
 		launchserial++;
 
-		time_t next = time(NULL) + (1 << backoff-1);
+		time_t next = time(NULL) + (1 << (backoff-1));
 		THREADLOCAL.taskqueue.schedule(next, callback<void>::create<start_crate>(), crate);
 
 		reset_backoff_data_t *backoffdata = new reset_backoff_data_t;
@@ -166,7 +167,7 @@ void *crate_monitor(void *arg)
 		backoffdata->curlaunchserial = &launchserial;
 		backoffdata->launchserial = launchserial;
 
-		THREADLOCAL.taskqueue.schedule(time(NULL)+(1 << backoff-1+1), callback<void>::create<reset_backoff>(), backoffdata);
+		THREADLOCAL.taskqueue.schedule(time(NULL)+(1 << (backoff-1+1)), callback<void>::create<reset_backoff>(), backoffdata);
 	}
 #endif
 
@@ -239,29 +240,29 @@ int main(int argc, char *argv[])
 
 	cfg_opt_t opts_auth[] =
 	{
-		CFG_STR_LIST("raw", "{}", CFGF_NONE),
-		CFG_STR_LIST("manage", "{}", CFGF_NONE),
-		CFG_STR_LIST("read", "{}", CFGF_NONE),
+	        CFG_STR_LIST(const_cast<char *>("raw"), const_cast<char *>("{}"), CFGF_NONE),
+		CFG_STR_LIST(const_cast<char *>("manage"), const_cast<char *>("{}"), CFGF_NONE),
+		CFG_STR_LIST(const_cast<char *>("read"), const_cast<char *>("{}"), CFGF_NONE),
 		CFG_END()
 	};
 
 	cfg_opt_t opts_crate[] =
 	{
-		CFG_STR("host", "", CFGF_NONE),
-		CFG_STR("description", "", CFGF_NONE),
-		CFG_STR("username", "", CFGF_NONE),
-		CFG_STR("password", "", CFGF_NONE),
-		CFG_INT_CB("authtype", 0, CFGF_NONE, cfg_parse_authtype),
-		CFG_INT_CB("mch", 0, CFGF_NONE, cfg_parse_MCH),
-		CFG_BOOL("enabled", cfg_true, CFGF_NONE),
+	        CFG_STR(const_cast<char *>("host"), const_cast<char *>(""), CFGF_NONE),
+		CFG_STR(const_cast<char *>("description"), const_cast<char *>(""), CFGF_NONE),
+		CFG_STR(const_cast<char *>("username"), const_cast<char *>(""), CFGF_NONE),
+		CFG_STR(const_cast<char *>("password"), const_cast<char *>(""), CFGF_NONE),
+		CFG_INT_CB(const_cast<char *>("authtype"), 0, CFGF_NONE, cfg_parse_authtype),
+		CFG_INT_CB(const_cast<char *>("mch"), 0, CFGF_NONE, cfg_parse_MCH),
+		CFG_BOOL(const_cast<char *>("enabled"), cfg_true, CFGF_NONE),
 		CFG_END()
 	};
 
 	cfg_opt_t opts[] =
 	{
-		CFG_SEC("authentication", opts_auth, CFGF_NONE),
-		CFG_SEC("crate", opts_crate, CFGF_MULTI),
-		CFG_INT("socket_port", 4681, CFGF_NONE),
+   	        CFG_SEC(const_cast<char *>("authentication"), opts_auth, CFGF_NONE),
+		CFG_SEC(const_cast<char *>("crate"), opts_crate, CFGF_MULTI),
+		CFG_INT(const_cast<char *>("socket_port"), 4681, CFGF_NONE),
 		CFG_END()
 	};
 	cfg_t *cfg = cfg_init(opts, CFGF_NONE);

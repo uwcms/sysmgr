@@ -9,6 +9,9 @@
 #include <cstdio>
 #include <string>
 #include <stdarg.h>
+#include <stdio.h>
+#include <limits.h>
+#include <string.h>
 
 #include "sysmgr.h"
 #include "../scope_lock.h"

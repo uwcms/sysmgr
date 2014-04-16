@@ -20,6 +20,8 @@
 #include <functional>
 #include <time.h>
 #include <pthread.h>
+#include <stdint.h>
+#include <sys/types.h>
 
 #include "Callback.h"
 #include "scope_lock.h"
