@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 
 	cfg_opt_t opts_auth[] =
 	{
-	        CFG_STR_LIST(const_cast<char *>("raw"), const_cast<char *>("{}"), CFGF_NONE),
+		CFG_STR_LIST(const_cast<char *>("raw"), const_cast<char *>("{}"), CFGF_NONE),
 		CFG_STR_LIST(const_cast<char *>("manage"), const_cast<char *>("{}"), CFGF_NONE),
 		CFG_STR_LIST(const_cast<char *>("read"), const_cast<char *>("{}"), CFGF_NONE),
 		CFG_END()
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 
 	cfg_opt_t opts_crate[] =
 	{
-	        CFG_STR(const_cast<char *>("host"), const_cast<char *>(""), CFGF_NONE),
+		CFG_STR(const_cast<char *>("host"), const_cast<char *>(""), CFGF_NONE),
 		CFG_STR(const_cast<char *>("description"), const_cast<char *>(""), CFGF_NONE),
 		CFG_STR(const_cast<char *>("username"), const_cast<char *>(""), CFGF_NONE),
 		CFG_STR(const_cast<char *>("password"), const_cast<char *>(""), CFGF_NONE),
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
 
 	cfg_opt_t opts[] =
 	{
-   	        CFG_SEC(const_cast<char *>("authentication"), opts_auth, CFGF_NONE),
+		CFG_SEC(const_cast<char *>("authentication"), opts_auth, CFGF_NONE),
 		CFG_SEC(const_cast<char *>("crate"), opts_crate, CFGF_MULTI),
 		CFG_INT(const_cast<char *>("socket_port"), 4681, CFGF_NONE),
 		CFG_END()
