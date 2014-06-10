@@ -56,12 +56,6 @@ int TaskQueue::run_until(time_t stop_after)
 	while (1) {
 		scope_lock llock(&this->lock);
 
-		do
-		{
-			dt.tv_sec = time(NULL) + 1;
-			pthread_cond_timedwait( &this->queueNotEmpty, &this->lock, &dt );
-		} while ( queue.empty() );
-
 		now = time(NULL);
 		ScheduledTask e = queue.top();
 		if (e.when <= now) {
@@ -75,6 +69,9 @@ int TaskQueue::run_until(time_t stop_after)
 		else {
 			if (stop_after && stop_after < now)
 				return processed;
+
+			dt.tv_sec = now+1;
+			pthread_cond_timedwait(&this->queueNotEmpty, &this->lock, &dt);
 		}
 	}
 }
