@@ -2,9 +2,20 @@
 #define _EXCEPTIONS_H
 #include "sysmgr.h"
 
+#ifdef DEBUG_EXCEPTION_ABORT
+
+#include <stdlib.h>
+#define THROW(e) throw e(__FILE__, __LINE__, __func__)
+#define THROWMSG(e, f, ...) do { mprintf("%s:%d: THROWMSG(%s, \"" f "\")\n", __FILE__, __LINE__, #e, ##__VA_ARGS__); abort(); } while (0)
+#define RETMSG(e, f, ...) do { mprintf("%s:%d: RETMSG(%s, \"" f "\")\n", __FILE__, __LINE__, #e, ##__VA_ARGS__); abort(); } while (0)
+
+#else
+
 #define THROW(e) throw e(__FILE__, __LINE__, __func__)
 #define THROWMSG(e, f, ...) throw e(__FILE__, __LINE__, __func__, stdsprintf(f, ##__VA_ARGS__))
 #define RETMSG(e, f, ...) do { mprintf("C%d: Returned " #e " at %s:%u: %s: " f "\n", CRATE_NO, __FILE__, __LINE__, __func__, ##__VA_ARGS__); return e; } while (0)
+
+#endif
 
 class Sysmgr_Exception {
 	protected:
