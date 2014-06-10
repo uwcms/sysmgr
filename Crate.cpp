@@ -1067,7 +1067,7 @@ void Sensor::get_readings(uint8_t *raw, double **threshold, uint16_t *bitmask)
 	*bitmask &= 0x7fff;
 
 	if (rv < 0)
-		THROWMSG(SensorReadingException, "ipmi_sensor_read(\"%s\" in %s, \"%s\") failed: (%d) %s", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), ipmi_sensor_read_ctx_errnum(crate->ctx.sensor_read), ipmi_sensor_read_ctx_strerror(ipmi_sensor_read_ctx_errnum(crate->ctx.sensor_read)));
+		THROWMSG(SensorReadingException, "ipmi_sensor_read(\"%s\" in %s, \"%s\") failed: sensor_read_ctx:\"(%d) %s\"; ipmi_ctx:\"(%d) %s\"", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), ipmi_sensor_read_ctx_errnum(crate->ctx.sensor_read), ipmi_sensor_read_ctx_strerror(ipmi_sensor_read_ctx_errnum(crate->ctx.sensor_read)) , ipmi_ctx_errnum(crate->ctx.ipmi), ipmi_ctx_strerror(ipmi_ctx_errnum(crate->ctx.ipmi)));
 
 	//dmprintf("C%u: Readings: %-16s\traw:%4hhu  read:%9.3lf  event:%04hx\n", CRATE_NO, this->name.c_str(), *raw, (*threshold ? **threshold : 0), *bitmask);
 

@@ -1,6 +1,7 @@
 #include <time.h>
 
 #include "../sysmgr.h"
+#include "../Callback.h"
 #include "UWCard.h"
 
 Sensor *UWCard::instantiate_sensor(uint8_t sensor_number, const void *sdr, uint8_t sdrlen)
@@ -23,7 +24,7 @@ void UWCard::hotswap_event(uint8_t oldstate, uint8_t newstate)
 	if (newstate == 4) {
 		Sensor *fpgaconfig = this->get_sensor("FPGA Config");
 		if (fpgaconfig)
-			fpgaconfig->get_event_reading();
+			static_cast<UW_FPGAConfig_Sensor*>(fpgaconfig)->scan_sensor(3);
 	}
 }
 

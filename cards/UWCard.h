@@ -41,22 +41,53 @@ class UWCard : public Card {
 class UW_FPGAConfig_Sensor : public Sensor {
 	protected:
 		time_t config_disarm;
+		int scan_retries;
+		TaskQueue::taskid_t scan_retry_task;
 	public:
 		UW_FPGAConfig_Sensor(UWCard *card, uint8_t sensor_number, const void *sdrbuf, uint8_t sdrbuflen)
-			: Sensor(card, sensor_number, sdrbuf, sdrbuflen), config_disarm(0) { this->get_raw_reading(); };
+			: Sensor(card, sensor_number, sdrbuf, sdrbuflen), config_disarm(0), scan_retries(0), scan_retry_task(0) {
+				this->scan_sensor(3);
+			};
+
+		virtual ~UW_FPGAConfig_Sensor() {
+			if (this->scan_retry_task)
+				THREADLOCAL.taskqueue.cancel(this->scan_retry_task);
+		}
 
 		virtual void sensor_event(bool assertion, uint8_t offset, void *sel_record, uint8_t sel_record_len) {
 			if (assertion && offset == 4)
 				this->config_disarm = 0;
 			if ((assertion && offset == 0) || offset == 3 || offset == 4)
-				this->get_event_reading();
+				this->scan_sensor(3);
 			if (assertion && offset == 4) {
 				std::string ip = static_cast<UWCard*>(this->card)->read_ip_config();
 				mprintf("C%d: %s card in %s has IP address %s\n", this->card->get_crate()->get_number(), this->card->get_name().c_str(), this->card->get_slotstring().c_str(), ip.c_str());
 			}
 		}
 
+		virtual void scan_sensor(int retries) {
+			scan_retries = retries;
+			if (!scan_retry_task)
+				this->scan_sensor_attempt(NULL);
+		}
+
 	protected:
+		virtual void scan_sensor_attempt(void *cb_null) {
+			try {
+				//dmprintf("Performing UW_FPGAConfig_Sensor scan with %d retries remaining\n", this->scan_retries);
+				this->get_event_reading();
+				//dmprintf("Performed UW_FPGAConfig_Sensor scan successfully\n");
+				this->scan_retries = -1;
+				this->scan_retry_task = 0;
+				return;
+			}
+			catch (SensorReadingException &e) {
+				if (this->scan_retries-- > 0)
+					this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+5, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
+				else
+					this->scan_retry_task = 0;
+			}
+		}
 		virtual void values_read(uint8_t raw, double *threshold, uint16_t bitmask) {
 			bool reqcfg		= bitmask & (1 << 3);
 			bool cfgrdy		= bitmask & (1 << 4);
