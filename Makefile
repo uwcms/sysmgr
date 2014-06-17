@@ -1,10 +1,7 @@
 DEPOPTS = -MMD -MF .$@.dep -MP
 CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread
 
-IPMILIBS = -I ../freeipmi-1.2.2_built/include \
-	   -L ../freeipmi-1.2.2_built/lib \
-	   -lfreeipmi \
-	   -lconfuse
+IPMILIBS = -lfreeipmi -lconfuse
 
 all: sysmgr tags
 
