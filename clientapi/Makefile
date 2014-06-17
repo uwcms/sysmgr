@@ -3,9 +3,6 @@ CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread -fPIC
 
 
 all: libsysmgr.so testapp tags
-	cp sysmgr.h ../build/include
-	cp libsysmgr.so ../build/lib
-	cp testapp ../build/bin
 
 libsysmgr.so: sysmgr.cpp sysmgr.h ../scope_lock.cpp ../scope_lock.h
 	g++ $(CCOPTS) $(IPMILIBS) -shared -o $@ sysmgr.cpp ../scope_lock.cpp

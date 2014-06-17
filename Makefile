@@ -3,7 +3,7 @@ CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread
 
 IPMILIBS = -lfreeipmi -lconfuse
 
-all: sysmgr tags
+all: sysmgr clientapi tags
 
 sysmgr: sysmgr.cpp sysmgr.h scope_lock.cpp scope_lock.h TaskQueue.cpp TaskQueue.h Callback.h Crate.cpp Crate.h mgmt_protocol.cpp mgmt_protocol.h WakeSock.h cardindex.h cardindex.inc commandindex.h commandindex.inc $(wildcard cards/*.h) $(wildcard cards/*.cpp) $(wildcard commands/*.h)
 	g++ $(CCOPTS) $(IPMILIBS) -o $@ sysmgr.cpp scope_lock.cpp TaskQueue.cpp Crate.cpp mgmt_protocol.cpp $(wildcard cards/*.cpp)
@@ -14,14 +14,19 @@ cardindex.h cardindex.inc: configure $(wildcard cards/*.h)
 commandindex.h commandindex.inc: configure $(wildcard commands/*.h)
 	./configure
 
+clientapi:
+	make -C clientapi all
+
 tags: *.cpp *.h
 	ctags -R . 2>/dev/null || true
 
 distclean: clean
 	rm -f .*.dep tags cardindex.h cardindex.inc commandindex.h commandindex.inc
+	make -C clientapi distclean
 clean:
 	rm -f sysmgr
+	make -C clientapi clean
 
-.PHONY: distclean clean all
+.PHONY: distclean clean all clientapi
 
 -include $(wildcard .*.dep)
