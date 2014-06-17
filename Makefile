@@ -21,12 +21,17 @@ tags: *.cpp *.h
 	ctags -R . 2>/dev/null || true
 
 distclean: clean
-	rm -f .*.dep tags cardindex.h cardindex.inc commandindex.h commandindex.inc
+	rm -f .*.dep tags cardindex.h cardindex.inc commandindex.h commandindex.inc *.rpm
 	make -C clientapi distclean
 clean:
 	rm -f sysmgr
+	rm -rf rpm/
 	make -C clientapi clean
 
-.PHONY: distclean clean all clientapi
+rpm: all
+	SYSMGR_ROOT=$(PWD) rpmbuild -ba --quiet --define "_topdir $(PWD)/rpm" sysmgr.spec
+	cp -v $(PWD)/rpm/RPMS/*/*.rpm ./
+
+.PHONY: distclean clean all clientapi rpm
 
 -include $(wildcard .*.dep)

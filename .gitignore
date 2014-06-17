@@ -7,5 +7,7 @@ commandindex.inc
 sysmgr
 .*.dep
 tags
+/rpm
+/*.rpm
 
 sysmgr.conf

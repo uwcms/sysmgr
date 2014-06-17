@@ -269,8 +269,21 @@ int main(int argc, char *argv[])
 	cfg_set_validate_func(cfg, "crate|host", &cfg_validate_hostname);
 	cfg_set_validate_func(cfg, "socket_port", &cfg_validate_port);
 
-	if(cfg_parse(cfg, CONFIG_FILE) == CFG_PARSE_ERROR)
+	if (argc >= 2 && access(argv[1], R_OK) == 0) {
+		if(cfg_parse(cfg, argv[1]) == CFG_PARSE_ERROR)
+			exit(1);
+	}
+	else if (access(CONFIG_FILE, R_OK) == 0) {
+		if(cfg_parse(cfg, CONFIG_FILE) == CFG_PARSE_ERROR)
+			exit(1);
+	}
+	else {
+		printf("Config file %s not found, and no argument supplied.\n", CONFIG_FILE);
+		printf("Try: %s sysmgr.conf\n", argv[0]);
 		exit(1);
+	}
+
+	bool crate_found = false;
 
 	cfg_t *cfgauth = cfg_getsec(cfg, "authentication");
 	for(unsigned int i = 0; i < cfg_size(cfgauth, "raw"); i++)
@@ -282,6 +295,7 @@ int main(int argc, char *argv[])
 
 	for(unsigned int i = 0; i < cfg_size(cfg, "crate"); i++) {
 		cfg_t *cfgcrate = cfg_getnsec(cfg, "crate", i);
+		crate_found = true;
 
 		enum Crate::Mfgr MCH;
 		switch (cfg_getint(cfgcrate, "mch")) {
@@ -301,6 +315,11 @@ int main(int argc, char *argv[])
 	uint16_t port = cfg_getint(cfg, "socket_port");
 
 	cfg_free(cfg);
+
+	if (!crate_found) {
+		printf("No crate specified in the configuration file.\n");
+		exit(1);
+	}
 
 	/*
 	 * Instantiate Worker Threads

@@ -10,7 +10,7 @@
 #undef	PRINT_SEL
 #define	ABSOLUTE_HOTSWAP // Check sensor value, not event data.
 
-#define CONFIG_FILE "sysmgr.conf"
+#define CONFIG_FILE "/etc/sysmgr.conf"
 
 /* -------------------------------------------------------------------------- */
 
