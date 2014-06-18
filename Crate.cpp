@@ -330,6 +330,7 @@ void Crate::scan_sel(void *cb_ignore)
 typedef struct {
 	bool activeslots[256]; // 14: Don't bother reindexing to 0
 	Crate *crate;
+	int errors;
 } identify_slots_cb_data_t;
 
 int crate__identify_slots_cb(ipmi_sdr_ctx_t ctx,
@@ -395,10 +396,12 @@ int crate__identify_slots_cb(ipmi_sdr_ctx_t ctx,
 #undef REGISTER_CARD
 			}
 			catch (std::exception& e) {
+				data->errors++;
 				mprintf("C%d: SDR FRU: Caught System Exception: %s.\n", data->crate->get_number(), typeid(typeof(e)).name());
 				return 0;
 			}
 			catch (Sysmgr_Exception& e) {
+				data->errors++;
 				if (e.get_message().c_str()[0] != '\0')
 					mprintf("C%d: SDR FRU: Caught %s on %s:%d in %s(): %s\n", data->crate->get_number(), e.get_type().c_str(), e.get_file().c_str(), e.get_line(), e.get_func().c_str(), e.get_message().c_str());
 				else
@@ -415,6 +418,7 @@ int crate__identify_slots_cb(ipmi_sdr_ctx_t ctx,
 typedef struct {
 	std::map< uint8_t, std::map<uint8_t, std::string> > oldsensors;
 	Crate *crate;
+	int errors;
 } identify_sensors_cb_data_t;
 
 int crate__identify_sensors_cb(ipmi_sdr_ctx_t ctx,
@@ -479,10 +483,12 @@ int crate__identify_sensors_cb(ipmi_sdr_ctx_t ctx,
 		}
 	}
 	catch (std::exception& e) {
+		data->errors++;
 		mprintf("C%d: SDR Sensor: Caught System Exception: %s.\n", data->crate->get_number(), typeid(typeof(e)).name());
 		return 0;
 	}
 	catch (Sysmgr_Exception& e) {
+		data->errors++;
 		if (e.get_message().c_str()[0] != '\0')
 			mprintf("C%d: SDR Sensor: Caught %s on %s:%d in %s(): %s\n", data->crate->get_number(), e.get_type().c_str(), e.get_file().c_str(), e.get_line(), e.get_func().c_str(), e.get_message().c_str());
 		else
@@ -497,16 +503,21 @@ void Crate::scan_sdr(void *cb_null)
 {
 	int rv;
 
-	bool retry = false;
+	bool do_work = false;
 	try {
-		if (!this->force_sdr_scan && !this->update_sdr_cache())
-			retry = true;
+		if (this->update_sdr_cache() || this->force_sdr_scan)
+			this->sdr_scan_retries = 5;
+
+		if (this->sdr_scan_retries) {
+			do_work = true;
+			this->sdr_scan_retries--;
+		}
 	}
 	catch (SDRRepositoryNotPopulatedException& e) {
 		dmprintf("C%d: Retrying SDR Scan: Not Populated\n", this->number);
-		retry = true;
+		do_work = false;
 	}
-	if (retry) {
+	if (!do_work) {
 		this->sdrscan_id = THREADLOCAL.taskqueue.schedule(time(NULL)+1, callback<void>::create<Crate,&Crate::scan_sdr>(this), NULL);
 		return;
 	}
@@ -516,6 +527,7 @@ void Crate::scan_sdr(void *cb_null)
 	for (int i = 0; i < 256; i++)
 		carddata.activeslots[i] = false;
 	carddata.crate = this;
+	carddata.errors = 0;
 
 	rv = ipmi_sdr_cache_iterate(this->ctx.sdr, crate__identify_slots_cb, &carddata);
 	if (rv == -1)
@@ -539,6 +551,7 @@ void Crate::scan_sdr(void *cb_null)
 	}
 
 	sensordata.crate = this;
+	sensordata.errors = 0;
 	rv = ipmi_sdr_cache_iterate(this->ctx.sdr, crate__identify_sensors_cb, &sensordata);
 	if (rv == -1)
 		THROWMSG(IPMI_LibraryError, "ipmi_sdr_cache_iterate() returned %d", rv);
@@ -550,6 +563,9 @@ void Crate::scan_sdr(void *cb_null)
 			this->cards[cit->first]->destroy_sensor(sit->first);
 		}
 	}
+
+	if (!carddata.errors && !sensordata.errors)
+		this->sdr_scan_retries = 0;
 
 	this->sdrscan_id = THREADLOCAL.taskqueue.schedule(time(NULL)+1, callback<void>::create<Crate,&Crate::scan_sdr>(this), NULL);
 }
