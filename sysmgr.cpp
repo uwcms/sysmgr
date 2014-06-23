@@ -244,6 +244,8 @@ int main(int argc, char *argv[])
 	pthread_key_create(&threadid_key, NULL);
 	pthread_setspecific(threadid_key, &threadid_main);
 
+	mprintf("University of Wisconsin IPMI MicroTCA System Manager\n");
+
 	/*
 	 * Parse Configuration
 	 */
