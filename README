@@ -1,0 +1,60 @@
+0. Description
+
+The University of Wisconsin IPMI MicroTCA System Manager grants access to
+MicroTCA crates over IPMI, providing basic status information and allowing
+multiple other applications to concurrently access the crates while buffering
+them from vendor or protocol related idiosyncracies, as well as providing a
+platform for automatic card initialization.
+
+
+1. Basic Operation and Configuration
+
+Copy sysmgr.conf.example, packaged in /usr/share/doc/sysmgr-*/, to a location of
+your choice and edit it to match your configuration.  You may then run:
+$ sysmgr sysmgr.conf
+
+If you run 'sysmgr' without an argument it will search for /etc/sysmgr.conf by
+default.  Note that the system manager does not need to run as root.
+
+Please do note the section on Output & Errors below.
+
+2. VadaTech MCH Setup
+
+VadaTech MCHs require no special configuration.
+
+3. NAT MCH Setup
+
+You must be running NAT MCH firmware version 2.14 or higher, which is available
+from NAT support.  The MCH also requires specific configuration.  On the MCH
+console run 'mchcfg' and set the following options:
+
+* Section 4: Set "send SEND_MSG confirmation to SMS" to 'Y'.
+* Section 6: Set "Enable 'keep on read'" to 'Y'.
+
+4. Output & Errors
+
+The system manager will output basic status information on crate activity to the
+console while in operation, including error messages and exceptions.
+
+There is no effective method to suppress the error messages from the underlying
+library, however proper response code checking is done, and the system manager
+is designed to be resilient in the face of these issues.  Any messages not
+beginning with "C[0-9]:" can be ignored.
+
+All status and error messages from the system manager itself will be prefixed
+with "C1: ", "C2: ", etc, depending on which crate produced the message.
+
+IPMI is a volatile environment and is prone to errors and failed commands.
+These are normally transient errors, and this is a normal part of crate
+operation.  The system manager attempts to handle these gracefully, but in the
+event of an error it does not have a specific method of recovery from, it will
+disconnect and restart its monitoring of the crate.  If you see a message such
+as "Restarting Crate 1 monitoring in 4 seconds.", this is what has occured and
+the system manager should automatically recover.
+
+It is not generally necessary to report issues that are recovered from and are
+not frequently recurring, have error messages indicating transient states, or
+appear to be natural parts of normal operation in an unreliable IPMI
+environment.  That said, please feel free to report any issues that are
+particularly concerning, or which you have reason to believe reflect a
+meaningful defect in the system manager itself.
