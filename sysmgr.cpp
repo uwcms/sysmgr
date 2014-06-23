@@ -142,7 +142,17 @@ void *crate_monitor(void *arg)
 			// System Exception: Lower backoff cap.
 			if (backoff < 6)
 				backoff++;
-			mprintf("C%d: Caught System Exception: %s.  Restarting Crate %d in %d seconds.\n", crate_no, typeid(typeof(e)).name(), crate_no, (1 << (backoff-1)));
+			mprintf("C%d: Caught System Exception: %s.  Restarting Crate %d monitoring in %d seconds.\n", crate_no, typeid(typeof(e)).name(), crate_no, (1 << (backoff-1)));
+		}
+		catch (SDRRepositoryNotPopulatedException& e) {
+			if (backoff < 7)
+				backoff++;
+			mprintf("C%d: The SDR repository is not yet populated.  Restarting Crate %d monitoring in %d seconds.\n", crate_no, crate_no, (1 << (backoff-1)));
+		}
+		catch (IPMI_ConnectionFailedException& e) {
+			if (backoff < 7)
+				backoff++;
+			mprintf("C%d: Unable to connect to Crate %d.  Restarting Crate %d monitoring in %d seconds.\n", crate_no, crate_no, crate_no, (1 << (backoff-1)));
 		}
 		catch (Sysmgr_Exception& e) {
 			// Local Exception
@@ -153,7 +163,7 @@ void *crate_monitor(void *arg)
 			else
 				mprintf("C%d: Caught %s on %s:%d in %s()\n", crate_no, e.get_type().c_str(), e.get_file().c_str(), e.get_line(), e.get_func().c_str());
 
-			mprintf("C%d: Restarting Crate %d in %d seconds.\n", crate_no, crate_no, (1 << (backoff-1)));
+			mprintf("C%d: Restarting Crate %d monitoring in %d seconds.\n", crate_no, crate_no, (1 << (backoff-1)));
 		}
 		crate->ipmi_disconnect();
 		launchserial++;

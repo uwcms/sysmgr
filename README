@@ -38,11 +38,12 @@ console while in operation, including error messages and exceptions.
 
 There is no effective method to suppress the error messages from the underlying
 library, however proper response code checking is done, and the system manager
-is designed to be resilient in the face of these issues.  Any messages not
-beginning with "C[0-9]:" can be ignored.
+is designed to be resilient in the face of these issues.  Any messages
+beginning with something similar to "api/ipmi-api.c:" can generally be ignored.
 
-All status and error messages from the system manager itself will be prefixed
-with "C1: ", "C2: ", etc, depending on which crate produced the message.
+All status and error messages from the system manager relating to crate
+management will be prefixed with "C1: ", "C2: ", etc, depending on which crate
+produced the message.
 
 IPMI is a volatile environment and is prone to errors and failed commands.
 These are normally transient errors, and this is a normal part of crate
