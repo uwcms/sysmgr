@@ -42,6 +42,7 @@ class Command_SENSOR_READ : public Command {
 			uint16_t bitmask;
 			try {
 				sensor->get_readings(&raw, &threshold, &bitmask);
+				this->ratelimit();
 			}
 			catch (Sysmgr_Exception &e) {
 				this->writebuf += stdsprintf("%u ERROR Unable to read sensor\n", this->msgid);

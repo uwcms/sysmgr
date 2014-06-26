@@ -21,6 +21,7 @@ pthread_mutex_t stdout_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 pthread_key_t threadid_key;
 std::vector<threadlocaldata_t> threadlocal;
 config_authdata_t config_authdata;
+uint32_t config_ratelimit_delay;
 
 void fiid_dump(fiid_obj_t obj)
 {
@@ -275,6 +276,7 @@ int main(int argc, char *argv[])
 		CFG_SEC(const_cast<char *>("authentication"), opts_auth, CFGF_NONE),
 		CFG_SEC(const_cast<char *>("crate"), opts_crate, CFGF_MULTI),
 		CFG_INT(const_cast<char *>("socket_port"), 4681, CFGF_NONE),
+		CFG_INT(const_cast<char *>("ratelimit_delay"), 0, CFGF_NONE),
 		CFG_END()
 	};
 	cfg_t *cfg = cfg_init(opts, CFGF_NONE);
@@ -325,6 +327,7 @@ int main(int argc, char *argv[])
 	}
 
 	uint16_t port = cfg_getint(cfg, "socket_port");
+	config_ratelimit_delay = cfg_getint(cfg, "ratelimit_delay");
 
 	cfg_free(cfg);
 

@@ -49,6 +49,7 @@ class Command_SET_THRESHOLDS : public Command {
 				thresholds.unr_set = (cmd[10] != "-"); if (thresholds.unr_set) thresholds.unr = Command::parse_uint8(cmd[10]);
 
 				sensor->set_thresholds(thresholds);
+				this->ratelimit();
 			}
 			catch (ProtocolParseException &e) {
 				this->writebuf += stdsprintf("%u ERROR Unparsable argument\n%u\n", this->msgid, this->msgid);

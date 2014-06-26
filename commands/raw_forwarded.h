@@ -60,6 +60,7 @@ class Command_RAW_FORWARDED : public Command {
 			}
 
 			int cmpl_code = THREADLOCAL.crate->send_bridged(brch, brta, tach, tata, netfn, raw_rq, raw_rs);
+			this->ratelimit();
 			if (cmpl_code < 0) {
 				this->writebuf += stdsprintf("%u ERROR Error sending raw command\n", this->msgid);
 				return;

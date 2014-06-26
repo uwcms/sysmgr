@@ -78,6 +78,8 @@ class Command_RAW_DIRECT : public Command {
 						outbuflen,
 						inbuf,
 						130);
+			this->ratelimit();
+
 			dmprintf("C%d: Sent Raw Direct\n", CRATE_NO);
 
 			if (inbuflen < 0) {
@@ -99,6 +101,7 @@ class Command_RAW_DIRECT : public Command {
 
 			this->writebuf += retbuf + "\n";
 
+#ifdef DEBUG_OUTPUT
 			scope_lock stdout_lock(&stdout_mutex);
 
 			dmprintf("outbuf");
@@ -110,6 +113,7 @@ class Command_RAW_DIRECT : public Command {
 			for (int i = 0; i < inbuflen; i++)
 				dmprintf(" %02x", inbuf[i]);
 			dmprintf("\n");
+#endif
 		};
 		// virtual void finalize(Client& client);
 };

@@ -1,5 +1,15 @@
 socket_port = 4681
 
+# If ratelimit_delay is set, it defines the number of microseconds that the
+# system manager will sleep after sending a command to a crate on behalf of a
+# client application.  This can be used to avoid session timeouts due to
+# excessive rates of requests.
+#
+# Note that this will suspend only the individual crate thread, and other
+# crates will remain unaffected, as will any operation that does not access an
+# individual crate.  The default, 0, is no delay.
+ratelimit_delay = 100000
+
 authentication {
 	raw = { }
 	manage = { "manage1", "manage2" }

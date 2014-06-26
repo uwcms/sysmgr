@@ -52,7 +52,7 @@ typedef struct {
 } config_authdata_t;
 
 extern config_authdata_t config_authdata;
-
+extern uint32_t config_ratelimit_delay;
 
 class EventData {
 	public:

@@ -43,6 +43,7 @@ class Command_GET_HYSTERESIS : public Command {
 			}
 
 			Sensor::hysteresis_data_t hysteresis = sensor->get_hysteresis();
+			this->ratelimit();
 
 			this->writebuf += stdsprintf("%u 0x%02x 0x%02x\n", this->msgid, hysteresis.goinghigh, hysteresis.goinglow);
 		};

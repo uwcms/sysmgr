@@ -38,6 +38,7 @@ class Command_GET_THRESHOLDS : public Command {
 			}
 
 			Sensor::threshold_data_t thresholds = sensor->get_thresholds();
+			this->ratelimit();
 
 			this->writebuf += stdsprintf("%u", this->msgid);
 			this->writebuf += (thresholds.lnc_set ? stdsprintf(" 0x%02x", thresholds.lnc) : " -");

@@ -38,26 +38,9 @@ class Command_GET_EVENT_ENABLES : public Command {
 			}
 
 			Sensor::event_enable_data_t enables;
-#ifdef REMOVE_THIS
-
-			try {
-				enables.lnc_set = (cmd[5]  != "-"); if (enables.lnc_set) enables.lnc = Command::parse_uint8(cmd[5]);
-				enables.lc_set  = (cmd[6]  != "-"); if (enables.lc_set)  enables.lc  = Command::parse_uint8(cmd[6]);
-				enables.lnr_set = (cmd[7]  != "-"); if (enables.lnr_set) enables.lnr = Command::parse_uint8(cmd[7]);
-
-				enables.unc_set = (cmd[8]  != "-"); if (enables.unc_set) enables.unc = Command::parse_uint8(cmd[8]);
-				enables.uc_set  = (cmd[9]  != "-"); if (enables.uc_set)  enables.uc  = Command::parse_uint8(cmd[9]);
-				enables.unr_set = (cmd[10] != "-"); if (enables.unr_set) enables.unr = Command::parse_uint8(cmd[10]);
-
-				sensor->set_thresholds(enables);
-			}
-			catch (ProtocolParseException &e) {
-				this->writebuf += stdsprintf("%u ERROR Unparsable argument\n%u\n", this->msgid, this->msgid);
-				return;
-			}
-#endif
 
 			enables = sensor->get_event_enables();
+			this->ratelimit();
 
 			this->writebuf += stdsprintf("%u %u %u 0x%04x 0x%04x\n", this->msgid, (enables.scanning ? 1 : 0), (enables.events ? 1 : 0), enables.assert, enables.deassert);
 		};

@@ -46,6 +46,7 @@ class Command_SET_EVENT_ENABLES : public Command {
 				enables.deassert = Command::parse_uint16(cmd[8]);
 
 				sensor->set_event_enables(enables);
+				this->ratelimit();
 			}
 			catch (ProtocolParseException &e) {
 				this->writebuf += stdsprintf("%u ERROR Unparsable argument\n%u\n", this->msgid, this->msgid);

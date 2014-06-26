@@ -184,6 +184,8 @@ class Command {
 		virtual void payload();
 		virtual void finalize(Client &client);
 
+	protected:
+		virtual void ratelimit();
 };
 
 class Client {

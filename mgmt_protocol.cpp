@@ -17,6 +17,7 @@
 
 
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <iostream>
@@ -65,6 +66,12 @@ void Command::run_here()
 void Command::payload()
 {
 	this->writebuf = stdsprintf("%u ERROR \"Unimplemented Command\"\n", this->msgid);
+}
+
+void Command::ratelimit()
+{
+	if (config_ratelimit_delay)
+		usleep(config_ratelimit_delay);
 }
 
 void Command::finalize(Client &client)
