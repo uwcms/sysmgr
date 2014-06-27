@@ -409,7 +409,7 @@ namespace sysmgr {
 			if (timercmp(&period, &tv_zero, <))
 				timerclear(&period);
 
-			if (this->recvbuf.find('\n') != std::string::npos || this->fetch_line(timeout ? &period : NULL)) {
+			if (this->events.empty() && (this->recvbuf.find('\n') != std::string::npos || this->fetch_line(timeout ? &period : NULL))) {
 				size_t nextnl;
 				if ((nextnl = this->recvbuf.find('\n')) != std::string::npos) {
 
