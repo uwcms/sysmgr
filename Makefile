@@ -29,7 +29,7 @@ clean:
 	make -C clientapi clean
 
 rpm: all
-	SYSMGR_ROOT=$(PWD) rpmbuild -ba --quiet --define "_topdir $(PWD)/rpm" sysmgr.spec
+	SYSMGR_ROOT=$(PWD) rpmbuild --sign -ba --quiet --define "_topdir $(PWD)/rpm" sysmgr.spec
 	cp -v $(PWD)/rpm/RPMS/*/*.rpm ./
 
 .PHONY: distclean clean all clientapi rpm
