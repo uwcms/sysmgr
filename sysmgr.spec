@@ -1,7 +1,7 @@
 Summary: University of Wisconsin IPMI MicroTCA System Manager
 Name: sysmgr
 Version: 1.0.0
-Release: 1
+Release: 1%{?dist}
 Packager: Jesra Tikalsky
 #BuildArch: %{_buildarch}
 License: Reserved
