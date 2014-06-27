@@ -5,8 +5,8 @@ IPMILIBS = -lfreeipmi -lconfuse
 
 all: sysmgr clientapi tags
 
-sysmgr: sysmgr.cpp sysmgr.h scope_lock.cpp scope_lock.h TaskQueue.cpp TaskQueue.h Callback.h Crate.cpp Crate.h mgmt_protocol.cpp mgmt_protocol.h WakeSock.h cardindex.h cardindex.inc commandindex.h commandindex.inc $(wildcard cards/*.h) $(wildcard cards/*.cpp) $(wildcard commands/*.h)
-	g++ $(CCOPTS) $(IPMILIBS) -o $@ sysmgr.cpp scope_lock.cpp TaskQueue.cpp Crate.cpp mgmt_protocol.cpp $(wildcard cards/*.cpp)
+sysmgr: sysmgr.cpp sysmgr.h mprintf.cpp scope_lock.cpp scope_lock.h TaskQueue.cpp TaskQueue.h Callback.h Crate.cpp Crate.h mgmt_protocol.cpp mgmt_protocol.h WakeSock.h cardindex.h cardindex.inc commandindex.h commandindex.inc $(wildcard cards/*.h) $(wildcard cards/*.cpp) $(wildcard commands/*.h)
+	g++ $(CCOPTS) $(IPMILIBS) -o $@ sysmgr.cpp mprintf.cpp scope_lock.cpp TaskQueue.cpp Crate.cpp mgmt_protocol.cpp $(wildcard cards/*.cpp)
 
 cardindex.h cardindex.inc: configure $(wildcard cards/*.h)
 	./configure

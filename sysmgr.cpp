@@ -17,7 +17,6 @@
 #include "scope_lock.h"
 #include "Crate.h"
 
-pthread_mutex_t stdout_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 pthread_key_t threadid_key;
 std::vector<threadlocaldata_t> threadlocal;
 config_authdata_t config_authdata;
@@ -44,7 +43,6 @@ void fiid_dump(fiid_obj_t obj)
 				mprintf("%02x ", data[i]);
 			mprintf("]\n");
 		}
-		fflush(stdout);
 		fiid_iterator_next(iter);
 	}
 	mprintf("\n");
@@ -239,6 +237,14 @@ static int cfg_parse_MCH(cfg_t *cfg, cfg_opt_t *opt, const char *value, void *re
 	return 0;
 }
 
+void do_fork() {
+	if (fork())
+		exit(0);
+	setsid();
+	if (fork())
+		exit(0);
+}                                                                                                                                                              
+
 int main(int argc, char *argv[])
 {
 	uint8_t threadid_main = 0;
@@ -277,6 +283,7 @@ int main(int argc, char *argv[])
 		CFG_SEC(const_cast<char *>("crate"), opts_crate, CFGF_MULTI),
 		CFG_INT(const_cast<char *>("socket_port"), 4681, CFGF_NONE),
 		CFG_INT(const_cast<char *>("ratelimit_delay"), 0, CFGF_NONE),
+		CFG_BOOL(const_cast<char *>("daemonize"), cfg_false, CFGF_NONE),
 		CFG_END()
 	};
 	cfg_t *cfg = cfg_init(opts, CFGF_NONE);
@@ -331,6 +338,7 @@ int main(int argc, char *argv[])
 
 	uint16_t port = cfg_getint(cfg, "socket_port");
 	config_ratelimit_delay = cfg_getint(cfg, "ratelimit_delay");
+	bool daemonize = (cfg_getbool(cfg, "daemonize") == cfg_true);
 
 	cfg_free(cfg);
 
@@ -342,6 +350,12 @@ int main(int argc, char *argv[])
 		printf("No crates are enabled in the configuration file.\n");
 		printf("No crates to service.\n");
 		exit(1);
+	}
+
+	if (daemonize) {
+		do_fork();
+		stdout_use_syslog = true;
+		mprintf("University of Wisconsin IPMI MicroTCA System Manager\n");
 	}
 
 	/*

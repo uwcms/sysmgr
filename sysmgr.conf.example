@@ -10,6 +10,9 @@ socket_port = 4681
 # individual crate.  The default, 0, is no delay.
 ratelimit_delay = 100000
 
+# If true, the system manager will run as a daemon, and send stdout to syslog.
+daemonize = false
+
 authentication {
 	raw = { }
 	manage = { "manage1", "manage2" }

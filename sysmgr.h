@@ -71,18 +71,13 @@ extern std::queue<EventData> events;
 extern WakeSock wake_socket;
 
 
+std::string stdsprintf(const char *fmt, ...);
+
 extern pthread_mutex_t stdout_mutex;
-inline int mprintf(const char *fmt, ...) {
-	scope_lock sl(&stdout_mutex);
+extern bool stdout_use_syslog;
+int mprintf(const char *fmt, ...);
+void mflush(bool absolute);
 
-	va_list va;
-	va_start(va, fmt);
-	int rv = vprintf(fmt, va);
-	va_end(va);
-
-	fflush(stdout);
-	return rv;
-}
 #ifdef DEBUG_OUTPUT
 #define dmprintf(...) mprintf(__VA_ARGS__)
 #define DI(x) mprintf("C%d: %s = %d\n", CRATE_NO, #x, (x))
@@ -92,19 +87,6 @@ inline int mprintf(const char *fmt, ...) {
 #define DI(x) (x)
 #define DX(x) (x)
 #endif
-
-inline std::string stdsprintf(const char *fmt, ...) {
-	va_list va;
-	va_list va2;
-	va_start(va, fmt);
-	va_copy(va2, va);
-	size_t s = vsnprintf(NULL, 0, fmt, va);
-	char str[s];
-	vsnprintf(str, s+1, fmt, va2);
-	va_end(va);
-	va_end(va2);
-	return std::string(str);
-}
 
 void fiid_dump(fiid_obj_t obj);
 
