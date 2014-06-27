@@ -153,7 +153,7 @@ void *crate_monitor(void *arg)
 		catch (IPMI_ConnectionFailedException& e) {
 			if (backoff < 7)
 				backoff++;
-			mprintf("C%d: Unable to connect to Crate %d.  Restarting Crate %d monitoring in %d seconds.\n", crate_no, crate_no, crate_no, (1 << (backoff-1)));
+			mprintf("C%d: Unable to connect to Crate %d: \"%s\".  Restarting Crate %d monitoring in %d seconds.\n", crate_no, crate_no, e.get_message().c_str(), crate_no, (1 << (backoff-1)));
 		}
 		catch (Sysmgr_Exception& e) {
 			// Local Exception
@@ -298,6 +298,7 @@ int main(int argc, char *argv[])
 	}
 
 	bool crate_found = false;
+	bool crate_enabled = false;
 
 	cfg_t *cfgauth = cfg_getsec(cfg, "authentication");
 	for(unsigned int i = 0; i < cfg_size(cfgauth, "raw"); i++)
@@ -323,6 +324,8 @@ int main(int argc, char *argv[])
 		Crate *crate = new Crate(i+1, MCH, cfg_getstr(cfgcrate, "host"), (user[0] ? user : NULL), (pass[0] ? pass : NULL), cfg_getint(cfgcrate, "authtype"), cfg_getstr(cfgcrate, "description"));
 
 		bool enabled = (cfg_getbool(cfgcrate, "enabled") == cfg_true);
+		if (enabled)
+			crate_enabled = true;
 		threadlocal.push_back(threadlocaldata_t(crate, enabled));
 	}
 
@@ -333,6 +336,11 @@ int main(int argc, char *argv[])
 
 	if (!crate_found) {
 		printf("No crate specified in the configuration file.\n");
+		exit(1);
+	}
+	if (!crate_enabled) {
+		printf("No crates are enabled in the configuration file.\n");
+		printf("No crates to service.\n");
 		exit(1);
 	}
 
