@@ -49,7 +49,7 @@ void CTP7::configure_fpga()
 	fiid_obj_set(fpgaconfig_rq, "gateway1", 192);
 	fiid_obj_set(fpgaconfig_rq, "gateway2", 168);
 	fiid_obj_set(fpgaconfig_rq, "gateway3", this->crate->get_number());
-	fiid_obj_set(fpgaconfig_rq, "gateway4", 2);
+	fiid_obj_set(fpgaconfig_rq, "gateway4", 1);
 	fiid_obj_set(fpgaconfig_rq, "bootvector", 0);
 
 	//dmprintf("Sending Message to 0, %02xh, %d, %02xh 0x32 MSG\n", this->get_bridge_addr(), this->get_channel(), this->get_addr());
