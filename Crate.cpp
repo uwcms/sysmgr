@@ -568,6 +568,8 @@ void Crate::scan_sdr(void *cb_null)
 		this->sdr_scan_retries = 0;
 	else if (this->sdr_scan_retries == 0)
 		mprintf("C%d: Out of retries parsing the SDR entries.  %d errors in card processing, %d errors in sensor processing.\n", this->number, carddata.errors, sensordata.errors);
+	else
+		mprintf("C%d: Issues parsing the SDR entries.  %d errors in card processing, %d errors in sensor processing.  %d retries remaining.\n", this->number, carddata.errors, sensordata.errors, this->sdr_scan_retries);
 
 	this->sdrscan_id = THREADLOCAL.taskqueue.schedule(time(NULL)+1, callback<void>::create<Crate,&Crate::scan_sdr>(this), NULL);
 }
