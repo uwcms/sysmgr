@@ -1,12 +1,15 @@
+%define commit %(git log HEAD^..HEAD --format=format:%H)
+%define shortcommit %(git log HEAD^..HEAD --format=format:%h)
+
 Summary: University of Wisconsin IPMI MicroTCA System Manager
 Name: sysmgr
 Version: 1.0.0
-Release: 1%{?dist}
+Release: 1%{?dist}.%(git branch | grep \* | cut -d\  -f2)
 Packager: Jesra Tikalsky
 #BuildArch: %{_buildarch}
 License: Reserved
 Group: Applications/XDAQ
-#Source: https://github.com/uwcms/sysmgr/archive/master.zip
+#Source: http://github.com/uwcms/sysmgr/archive/%{commit}/sysmgr-%{commit}.tar.gz
 URL: https://github.com/uwcms/sysmgr
 BuildRoot: %{PWD}/rpm/buildroot
 Requires: freeipmi >= 1.2.1, libconfuse >= 2.7
