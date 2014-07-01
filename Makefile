@@ -1,7 +1,7 @@
 DEPOPTS = -MMD -MF .$@.dep -MP
 CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread
 
-IPMILIBS = -lfreeipmi -lconfuse
+IPMILIBS := -lfreeipmi -lconfuse $(IPMILIBS)
 
 all: sysmgr clientapi tags
 
