@@ -18,6 +18,18 @@ default.  Note that the system manager does not need to run as root.
 
 Please do note the section on Output & Errors below.
 
+A successful startup will produce messages similar to the following, to the
+console or to syslog depending on configuration.
+
+| University of Wisconsin IPMI MicroTCA System Manager
+| C2: Card added in MCH2: UTCA MCH
+| C2: Card added in AMC02: WISC CTP-6
+| C2: Card added in AMC09: WISC CTP-7
+| C2: Card added in AMC13: BU AMC13
+| C2: Card added in CU1: VT VT095
+| C2: Card added in CU2: VT VT095
+| C2: Card added in PM1: VT UTC020
+
 2. VadaTech MCH Setup
 
 VadaTech MCHs require no special configuration.
