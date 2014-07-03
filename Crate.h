@@ -291,6 +291,7 @@ class HotswapSensor : public Sensor {
 				events.assert |= 0x00ff;
 				this->set_event_enables(events);
 				*/
+				this->name = "Hotswap";
 				this->get_event_reading();
 		   	};
 		~HotswapSensor() { };
