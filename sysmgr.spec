@@ -13,7 +13,7 @@ Group: Applications/XDAQ
 URL: https://github.com/uwcms/sysmgr
 BuildRoot: %{PWD}/rpm/buildroot
 Requires: freeipmi >= 1.2.1, libconfuse >= 2.7
-Prefix: /usr
+#Prefix: /usr
 
 %description
 The University of Wisconsin IPMI MicroTCA System Manager grants access to
@@ -49,12 +49,14 @@ platform for automatic card initialization.
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/include
 mkdir -p %{buildroot}/usr/bin
+mkdir -p %{buildroot}/etc/init.d
 mkdir -p %{buildroot}/usr/lib64
 mkdir -p %{buildroot}/usr/share/doc/%{name}-%{version}/
 
 install -m 755 $SYSMGR_ROOT/sysmgr %{buildroot}/usr/bin/
 install -m 644 $SYSMGR_ROOT/README %{buildroot}/usr/share/doc/%{name}-%{version}/
 install -m 644 $SYSMGR_ROOT/sysmgr.conf.example %{buildroot}/usr/share/doc/%{name}-%{version}/
+install -m 755 $SYSMGR_ROOT/init.d_sysmgr.sh %{buildroot}/etc/init.d/sysmgr
 install -m 755 $SYSMGR_ROOT/clientapi/sysmgr.h %{buildroot}/usr/include/
 install -m 755 $SYSMGR_ROOT/clientapi/libsysmgr.so %{buildroot}/usr/lib64/
 #install -m 655 %{_packagedir}/MAINTAINER %{_packagedir}/rpm/RPMBUILD/BUILD/MAINTAINER
@@ -69,9 +71,10 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc /usr/share/doc/%{name}-%{version}/sysmgr.conf.example
 %doc /usr/share/doc/%{name}-%{version}/README
-/usr/bin/
-/usr/lib64/
-/usr/include/
+/etc/init.d/sysmgr
+/usr/bin/sysmgr
+/usr/include/sysmgr.h
+/usr/lib64/libsysmgr.so
 
 #
 # Files that go in the devel RPM
