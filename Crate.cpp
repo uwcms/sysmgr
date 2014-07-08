@@ -391,8 +391,9 @@ int crate__identify_slots_cb(ipmi_sdr_ctx_t ctx,
 			try {
 				bool found = false;
 				for (std::vector<cardmodule_t>::iterator it = card_modules.begin(); it != card_modules.end(); it++) {
-					if (it->check_card_type(data->crate, device_id, sdrbuf, sdrbuflen)) {
-						data->crate->add_card(it->instantiate_card(data->crate, device_id, sdrbuf, sdrbuflen));
+					Card *newcard = it->instantiate_card(data->crate, device_id, sdrbuf, sdrbuflen);
+					if (newcard) {
+						data->crate->add_card(newcard);
 						found = true;
 						break;
 					}

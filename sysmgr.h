@@ -76,7 +76,6 @@ typedef struct {
 	uint32_t APIVER;
 	uint32_t MIN_APIVER;
 	bool (*initialize_module)(std::string config);
-	bool (*check_card_type)(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen);
 	Card *(*instantiate_card)(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen);
 } cardmodule_t;
 extern std::vector<cardmodule_t> card_modules;

@@ -384,9 +384,6 @@ int main(int argc, char *argv[])
 		LOAD_SYM(initialize_module, "function");
 		cm.initialize_module = reinterpret_cast<bool (*)(std::string)>(sym);
 
-		LOAD_SYM(check_card_type, "function");
-		cm.check_card_type = reinterpret_cast<bool (*)(Crate*, std::string, void*, uint8_t)>(sym);
-
 		LOAD_SYM(instantiate_card, "function");
 		cm.instantiate_card = reinterpret_cast<Card* (*)(Crate*, std::string, void*, uint8_t)>(sym);
 
