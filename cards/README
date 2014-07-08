@@ -1,2 +1,5 @@
 Card specific modules to handle automatic configuration or monitoring from
 within the system manager itself live here.
+
+All .cpp files will be built as shared modules and included in the RPM.  These
+shared modules can be loaded by specifying them in the sysmgr.conf file.

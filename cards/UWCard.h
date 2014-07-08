@@ -10,7 +10,6 @@ class UWCard : public Card {
 		uint8_t led_progress_state;
 		friend class UW_FPGAConfig_Sensor;
 	public:
-		static bool check_card_type(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen) { return name.substr(0,4) == "WISC"; }
 		UWCard(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen)
 			: Card(crate, name, sdrbuf, sdrbuflen), fpga_configure_in_progress(false), fpga_config_check_task(0), led_progress_state(0) { this->set_clock(); };
 		virtual Sensor *instantiate_sensor(uint8_t sensor_number, const void *sdr, uint8_t sdrlen);

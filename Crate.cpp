@@ -5,7 +5,6 @@
 
 #include "sysmgr.h"
 #include "Crate.h"
-#include "cardindex.h"
 #include "Callback.h"
 
 void Crate::add_card(Card *card)
@@ -389,11 +388,17 @@ int crate__identify_slots_cb(ipmi_sdr_ctx_t ctx,
 			return 0; // If !in_list, disinterested.
 
 		if (!data->crate->get_card(fru)) {
-			bool registered = false;
 			try {
-#define REGISTER_CARD(c) do { if (!registered && c::check_card_type(data->crate, device_id, sdrbuf, sdrbuflen)) { data->crate->add_card(new c(data->crate, device_id, sdrbuf, sdrbuflen)); registered = true; } } while (0)
-#include "cardindex.inc"
-#undef REGISTER_CARD
+				bool found = false;
+				for (std::vector<cardmodule_t>::iterator it = card_modules.begin(); it != card_modules.end(); it++) {
+					if (it->check_card_type(data->crate, device_id, sdrbuf, sdrbuflen)) {
+						data->crate->add_card(it->instantiate_card(data->crate, device_id, sdrbuf, sdrbuflen));
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					data->crate->add_card(new Card(data->crate, device_id, sdrbuf, sdrbuflen));
 			}
 			catch (std::exception& e) {
 				data->errors++;

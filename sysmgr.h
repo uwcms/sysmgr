@@ -11,6 +11,7 @@
 #define	ABSOLUTE_HOTSWAP // Check sensor value, not event data.
 
 #define CONFIG_FILE "/etc/sysmgr.conf"
+#define DEFAULT_MODULE_PATH "/usr/lib64/sysmgr/modules"
 
 /* -------------------------------------------------------------------------- */
 
@@ -67,6 +68,18 @@ class EventData {
 };
 extern pthread_mutex_t events_mutex;
 extern std::queue<EventData> events;
+
+class Card;
+
+typedef struct {
+	void *dl_addr;
+	uint32_t APIVER;
+	uint32_t MIN_APIVER;
+	bool (*initialize_module)(std::string config);
+	bool (*check_card_type)(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen);
+	Card *(*instantiate_card)(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen);
+} cardmodule_t;
+extern std::vector<cardmodule_t> card_modules;
 
 extern WakeSock wake_socket;
 

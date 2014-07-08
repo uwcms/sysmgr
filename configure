@@ -67,19 +67,31 @@ sub include_dag {
 
 (my $CardList, my $CardFiles) = include_dag([glob('cards/*.h')],['Card']);
 
-open(I, '>', 'cardindex.inc') or die "Cannot open cardindex.inc for writing: $!";
-for my $Card (reverse @$CardList) {
-	printf I "REGISTER_CARD(%s);\n", $Card;
+open(CONFTMPL, '<', 'sysmgr.conf.example.tmpl') or die "Cannot open sysmgr.conf.example.tmpl for reading";
+open(CONF, '>', 'sysmgr.conf.example') or die "Cannot open sysmgr.conf.example for writing";
+my $Outputed = 0;
+while (<CONFTMPL>) {
+	chomp;
+	if (/^# Modules/.../^$/) {
+		if (!$Outputed++) {
+			printf CONF "# Modules\n";
+			printf CONF "#\n";
+			for my $Card (@$CardList) {
+				if ($Card ne 'Card') {
+					printf CONF "# cardmodule {\n";
+					printf CONF "# \tmodule = \"%s.so\"\n", $Card;
+					printf CONF "# \tconfig = \"\"\n";
+					printf CONF "# }\n";
+				}
+			}
+		}
+	}
+	else {
+		printf CONF "%s\n", $_;
+	}
 }
-close(I);
-
-open(H, '>', 'cardindex.h') or die "Cannot open cardindex.h for writing: $!";
-for my $Card (@$CardList) {
-	next if ($Card eq 'Card');
-	printf H "#include \"%s\"\n", $CardFiles->{$Card};
-}
-close(H);
-
+close(CONFTMPL);
+close(CONF);
 
 
 #               #

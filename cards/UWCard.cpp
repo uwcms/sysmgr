@@ -4,6 +4,18 @@
 #include "../Callback.h"
 #include "UWCard.h"
 
+extern "C" {
+	int APIVER = 1;
+	int MIN_APIVER = 1;
+	bool initialize_module(std::string config) { return true; };
+	bool check_card_type(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen) {
+		return name.substr(0,4) == "WISC";
+	}
+	Card *instantiate_card(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen) {
+		return new UWCard(crate, name, sdrbuf, sdrbuflen);
+	}
+}
+
 Sensor *UWCard::instantiate_sensor(uint8_t sensor_number, const void *sdr, uint8_t sdrlen)
 {
 	int rv;

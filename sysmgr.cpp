@@ -12,6 +12,7 @@
 #include <typeinfo>
 #include <confuse.h>
 #include <limits.h>
+#include <dlfcn.h>
 
 #include "sysmgr.h"
 #include "scope_lock.h"
@@ -20,6 +21,7 @@
 pthread_key_t threadid_key;
 std::vector<threadlocaldata_t> threadlocal;
 config_authdata_t config_authdata;
+std::vector<cardmodule_t> card_modules;
 uint32_t config_ratelimit_delay;
 
 void fiid_dump(fiid_obj_t obj)
@@ -277,10 +279,18 @@ int main(int argc, char *argv[])
 		CFG_END()
 	};
 
+	cfg_opt_t opts_cardmodule[] =
+	{
+		CFG_STR(const_cast<char *>("module"), const_cast<char *>(""), CFGF_NONE),
+		CFG_STR(const_cast<char *>("config"), const_cast<char *>(""), CFGF_NONE),
+		CFG_END()
+	};
+
 	cfg_opt_t opts[] =
 	{
 		CFG_SEC(const_cast<char *>("authentication"), opts_auth, CFGF_NONE),
 		CFG_SEC(const_cast<char *>("crate"), opts_crate, CFGF_MULTI),
+		CFG_SEC(const_cast<char *>("cardmodule"), opts_cardmodule, CFGF_MULTI),
 		CFG_INT(const_cast<char *>("socket_port"), 4681, CFGF_NONE),
 		CFG_INT(const_cast<char *>("ratelimit_delay"), 0, CFGF_NONE),
 		CFG_BOOL(const_cast<char *>("daemonize"), cfg_false, CFGF_NONE),
@@ -334,6 +344,60 @@ int main(int argc, char *argv[])
 		if (enabled)
 			crate_enabled = true;
 		threadlocal.push_back(threadlocaldata_t(crate, enabled));
+	}
+
+	for(unsigned int i = 0; i < cfg_size(cfg, "cardmodule"); i++) {
+		cfg_t *cfgmodule = cfg_getnsec(cfg, "cardmodule", i);
+
+		const char *module = cfg_getstr(cfgmodule, "module");
+		const char *config = cfg_getstr(cfgmodule, "config");
+
+		std::string modulepath = module;
+		if (modulepath.find("/") == std::string::npos)
+			modulepath = std::string(DEFAULT_MODULE_PATH) +"/"+ modulepath;
+
+		cardmodule_t cm;
+		cm.dl_addr = dlopen(modulepath.c_str(), RTLD_NOW|RTLD_GLOBAL);
+		if (cm.dl_addr == NULL) {
+			printf("Error loading module %s:\n\t%s\n", module, dlerror());
+			exit(2);
+		}
+
+		void *sym;
+#define LOAD_SYM(name, type) \
+		sym = dlsym(cm.dl_addr, #name); \
+		if (sym == NULL) { \
+			mprintf("Error loading module %s " type " " #name ":\n\t%s\n", module, dlerror()); \
+			exit(2); \
+		}
+
+		LOAD_SYM(APIVER, "variable");
+		cm.APIVER = *reinterpret_cast<uint32_t*>(sym);
+
+		LOAD_SYM(MIN_APIVER, "variable");
+		cm.MIN_APIVER = *reinterpret_cast<uint32_t*>(sym);
+
+		if (cm.APIVER < 1 || cm.MIN_APIVER > 1) {
+			mprintf("Error loading module %s: Incompatible API version %u\n", module, cm.APIVER);
+		}
+
+		LOAD_SYM(initialize_module, "function");
+		cm.initialize_module = reinterpret_cast<bool (*)(std::string)>(sym);
+
+		LOAD_SYM(check_card_type, "function");
+		cm.check_card_type = reinterpret_cast<bool (*)(Crate*, std::string, void*, uint8_t)>(sym);
+
+		LOAD_SYM(instantiate_card, "function");
+		cm.instantiate_card = reinterpret_cast<Card* (*)(Crate*, std::string, void*, uint8_t)>(sym);
+
+#undef LOAD_SYM
+
+		if (!cm.initialize_module(config)) {
+			printf("Error loading module %s: initialize_module() returned false\n", module);
+			exit(2);
+		}
+
+		card_modules.insert(card_modules.begin(), cm);
 	}
 
 	uint16_t port = cfg_getint(cfg, "socket_port");

@@ -131,8 +131,6 @@ class Card {
 			assert(0);
 		}
 
-		static bool check_card_type(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen) { return true; };
-
 		Card(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen);
 		const std::string get_name() { return name; };
 		uint8_t get_fru() { return fru; };
