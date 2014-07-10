@@ -70,8 +70,14 @@ void mflush(bool absolute)
 		if (mprintf_linebuf.size() == 0)
 			break;
 
-		std::string line = mprintf_linebuf.substr(0, nextnl+1);
-		mprintf_linebuf.erase(0, nextnl+1);
-		raw_output(line);
+		if (nextnl == std::string::npos) {
+			raw_output(mprintf_linebuf);
+			mprintf_linebuf.clear();
+		}
+		else {
+			std::string line = mprintf_linebuf.substr(0, nextnl+1);
+			mprintf_linebuf.erase(0, nextnl+1);
+			raw_output(line);
+		}
 	}
 }
