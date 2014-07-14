@@ -88,17 +88,12 @@ die "Unable to flatten card dependency graph: $rv" if ($rv ne 'OK');
 
 open(CONFTMPL, '<', 'sysmgr.conf.example.tmpl') or die "Cannot open sysmgr.conf.example.tmpl for reading";
 open(CONF, '>', 'sysmgr.conf.example') or die "Cannot open sysmgr.conf.example for writing";
-my $Outputed = 0;
 while (<CONFTMPL>) {
 	chomp;
-	if (/^# Modules/.../^$/) {
-		if (!$Outputed++) {
-			printf CONF "# Modules\n";
-			printf CONF "#\n";
-			for my $Card (@Targets) {
-					for my $CfgLine (split /[\r\n]+/, $Card->{config}) {
-					printf CONF "# %s\n", $CfgLine;
-				}
+	if (/^# {MODULES}$/) {
+		for my $Card (@Targets) {
+			for my $CfgLine (split /[\r\n]+/, $Card->{config}) {
+				printf CONF "# %s\n", $CfgLine;
 			}
 		}
 	}

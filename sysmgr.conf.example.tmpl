@@ -47,4 +47,11 @@ crate {
 	description = "Spare Crate"
 }
 
-# Modules
+# *** Modules ***
+#
+# These modules will be loaded in the order specified here.  When a new card is
+# detected, they will be checked in reverse order to determine which module
+# will service that card.  If no module claims a card, it will be serviced by
+# the system manager with no special functionality.
+
+# {MODULES}
