@@ -64,7 +64,7 @@ extern "C" {
 			return false;
 		}
 		return true;
-	};
+	}
 	Card *instantiate_card(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen) {
 		for (std::vector<std::string>::iterator it = supported_cards.begin(); it != supported_cards.end(); it++)
 			if (*it == name)

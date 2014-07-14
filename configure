@@ -37,7 +37,11 @@ sub flatten {
 	my %AllRecs = map { ($_->{id}, $_) } @$Records;
 	foreach my $Rec (@$Records) {
 		$Rec->{dg_state} = 'new';
-		$Rec->{dg_depends} = [ map { $AllRecs{sprintf("cards/%s.cpp", $_)} } @{$Rec->{depends}} ];
+		$Rec->{dg_depends} = [];
+		foreach my $Depend (@{$Rec->{depends}}) {
+			return sprintf("Dependency %s of %s is not in the graph.", $Depend, $Rec->{id}) unless exists($AllRecs{$Depend});
+			push @{$Rec->{dg_depends}}, $AllRecs{$Depend};
+		}
 	}
 
 	my $rv = 'OK';
@@ -71,7 +75,7 @@ sub read_card_config {
 			$Record->{config} .= "$_\n";
 		}
 		if (/^\/\*\* configure: depends: (.+) \*\//) {
-			push @{$Record->{depends}}, split / /, $1;
+			push @{$Record->{depends}}, map { sprintf("cards/%s.cpp", $_) } split(/ /, $1);
 		}
 	}
 	return $Record;
