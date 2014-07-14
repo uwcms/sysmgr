@@ -10,6 +10,9 @@ all: cards tags
 
 cards: $(OBJ)
 
+GenericUW.so: GenericUW.cpp
+	g++ $(CCOPTS) $(IPMILIBS) $$(pkg-config --cflags --libs libxml++-2.6) -shared -o $@ $<
+
 %.so: %.cpp
 	g++ $(CCOPTS) $(IPMILIBS) -shared -o $@ $<
 

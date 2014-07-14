@@ -10,7 +10,8 @@
 #undef	PRINT_SEL
 #define	ABSOLUTE_HOTSWAP // Check sensor value, not event data.
 
-#define CONFIG_FILE "/etc/sysmgr.conf"
+#define CONFIG_PATH "/etc/sysmgr"
+#define CONFIG_FILE "sysmgr.conf"
 #define DEFAULT_MODULE_PATH "/usr/lib64/sysmgr/modules"
 
 /* -------------------------------------------------------------------------- */
@@ -75,7 +76,7 @@ typedef struct {
 	void *dl_addr;
 	uint32_t APIVER;
 	uint32_t MIN_APIVER;
-	bool (*initialize_module)(std::string config);
+	bool (*initialize_module)(std::vector<std::string> config);
 	Card *(*instantiate_card)(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen);
 } cardmodule_t;
 extern std::vector<cardmodule_t> card_modules;

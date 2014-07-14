@@ -23,7 +23,7 @@
 
 exec="/usr/bin/sysmgr"
 prog="sysmgr"
-config="/etc/sysmgr.conf"
+config="/etc/sysmgr/sysmgr.conf"
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 

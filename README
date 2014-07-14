@@ -9,12 +9,14 @@ platform for automatic card initialization.
 
 1. Basic Operation and Configuration
 
-Copy sysmgr.conf.example, packaged in /usr/share/doc/sysmgr-*/, to a location of
-your choice and edit it to match your configuration.  You may then run:
+Copy sysmgr.conf.example, packaged in /usr/share/doc/sysmgr-*/ and
+/etc/sysmgr/sysmgr.conf.example, to a location of your choice and edit it to
+match your configuration.  You may then run:
 $ sysmgr sysmgr.conf
 
-If you run 'sysmgr' without an argument it will search for /etc/sysmgr.conf by
-default.  Note that the system manager does not need to run as root.
+If you run 'sysmgr' without an argument it will search for
+/etc/sysmgr/sysmgr.conf by default.  Note that the system manager does not need
+to run as root.
 
 Please do note the section on Output & Errors below.
 

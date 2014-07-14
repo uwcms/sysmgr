@@ -50,17 +50,21 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/include
 mkdir -p %{buildroot}/usr/bin
 mkdir -p %{buildroot}/etc/init.d
+mkdir -p %{buildroot}/etc/sysmgr
 mkdir -p %{buildroot}/usr/lib64
 mkdir -p %{buildroot}/usr/lib64/sysmgr/modules
 mkdir -p %{buildroot}/usr/share/doc/%{name}-%{version}/
 
 install -m 755 $SYSMGR_ROOT/sysmgr %{buildroot}/usr/bin/
 install -m 644 $SYSMGR_ROOT/README %{buildroot}/usr/share/doc/%{name}-%{version}/
+install -m 644 $SYSMGR_ROOT/sysmgr.conf.example %{buildroot}/etc/sysmgr/
 install -m 644 $SYSMGR_ROOT/sysmgr.conf.example %{buildroot}/usr/share/doc/%{name}-%{version}/
 install -m 755 $SYSMGR_ROOT/init.d_sysmgr.sh %{buildroot}/etc/init.d/sysmgr
 install -m 755 $SYSMGR_ROOT/clientapi/sysmgr.h %{buildroot}/usr/include/
 install -m 755 $SYSMGR_ROOT/clientapi/libsysmgr.so %{buildroot}/usr/lib64/
 install -m 755 $SYSMGR_ROOT/cards/*.so %{buildroot}/usr/lib64/sysmgr/modules/
+cp -r $SYSMGR_ROOT/cards/doc/ %{buildroot}/usr/share/doc/%{name}-%{version}/modules/
+chmod -R u=rwX,go=rX %{buildroot}/usr/share/doc/%{name}-%{version}/modules/
 #install -m 655 %{_packagedir}/MAINTAINER %{_packagedir}/rpm/RPMBUILD/BUILD/MAINTAINER
 
 %clean
@@ -71,8 +75,8 @@ rm -rf %{buildroot}
 #
 %files
 %defattr(-,root,root,-)
-%doc /usr/share/doc/%{name}-%{version}/sysmgr.conf.example
-%doc /usr/share/doc/%{name}-%{version}/README
+%doc /usr/share/doc/%{name}-%{version}/
+/etc/sysmgr/
 /etc/init.d/sysmgr
 /usr/bin/sysmgr
 /usr/include/sysmgr.h

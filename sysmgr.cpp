@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 	cfg_opt_t opts_cardmodule[] =
 	{
 		CFG_STR(const_cast<char *>("module"), const_cast<char *>(""), CFGF_NONE),
-		CFG_STR(const_cast<char *>("config"), const_cast<char *>(""), CFGF_NONE),
+		CFG_STR_LIST(const_cast<char *>("config"), const_cast<char *>("{}"), CFGF_NONE),
 		CFG_END()
 	};
 
@@ -304,12 +304,12 @@ int main(int argc, char *argv[])
 		if(cfg_parse(cfg, argv[1]) == CFG_PARSE_ERROR)
 			exit(1);
 	}
-	else if (access(CONFIG_FILE, R_OK) == 0) {
-		if(cfg_parse(cfg, CONFIG_FILE) == CFG_PARSE_ERROR)
+	else if (access(CONFIG_PATH "/" CONFIG_FILE, R_OK) == 0) {
+		if(cfg_parse(cfg, CONFIG_PATH "/" CONFIG_FILE) == CFG_PARSE_ERROR)
 			exit(1);
 	}
 	else {
-		printf("Config file %s not found, and no argument supplied.\n", CONFIG_FILE);
+		printf("Config file %s not found, and no argument supplied.\n", CONFIG_PATH "/" CONFIG_FILE);
 		printf("Try: %s sysmgr.conf\n", argv[0]);
 		exit(1);
 	}
@@ -350,7 +350,10 @@ int main(int argc, char *argv[])
 		cfg_t *cfgmodule = cfg_getnsec(cfg, "cardmodule", i);
 
 		const char *module = cfg_getstr(cfgmodule, "module");
-		const char *config = cfg_getstr(cfgmodule, "config");
+
+		std::vector<std::string> configdata;
+		for(unsigned int i = 0; i < cfg_size(cfgmodule, "config"); i++)
+			configdata.push_back(std::string(cfg_getnstr(cfgmodule, "config", i)));
 
 		std::string modulepath = module;
 		if (modulepath.find("/") == std::string::npos)
@@ -377,19 +380,19 @@ int main(int argc, char *argv[])
 		LOAD_SYM(MIN_APIVER, "variable");
 		cm.MIN_APIVER = *reinterpret_cast<uint32_t*>(sym);
 
-		if (cm.APIVER < 1 || cm.MIN_APIVER > 1) {
+		if (cm.APIVER < 2 || cm.MIN_APIVER > 2) {
 			mprintf("Error loading module %s: Incompatible API version %u\n", module, cm.APIVER);
 		}
 
 		LOAD_SYM(initialize_module, "function");
-		cm.initialize_module = reinterpret_cast<bool (*)(std::string)>(sym);
+		cm.initialize_module = reinterpret_cast<bool (*)(std::vector<std::string>)>(sym);
 
 		LOAD_SYM(instantiate_card, "function");
 		cm.instantiate_card = reinterpret_cast<Card* (*)(Crate*, std::string, void*, uint8_t)>(sym);
 
 #undef LOAD_SYM
 
-		if (!cm.initialize_module(config)) {
+		if (!cm.initialize_module(configdata)) {
 			printf("Error loading module %s: initialize_module() returned false\n", module);
 			exit(2);
 		}
