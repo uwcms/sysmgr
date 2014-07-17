@@ -107,7 +107,8 @@ void GenericUW::set_clock()
 	};
 
 	fiid_obj_t set_clock_rq = fiid_obj_create(tmpl_set_clock_rq);
-
+	fiid_obj_set(set_clock_rq, "cmd", 0x29);
+	fiid_obj_set(set_clock_rq, "time", time(NULL));
 
 	this->crate->send_bridged(0, this->get_bridge_addr(), this->get_channel(), this->get_addr(), 0x32, set_clock_rq, NULL);
 
