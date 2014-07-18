@@ -786,8 +786,8 @@ namespace sysmgr {
 	}
 	std::string sysmgr::get_slotstring(uint8_t fru)
 	{
-		if (fru == 2 || fru == 3)
-			return stdsprintf("MCH%hhu", fru-1);
+		if (fru == 3 || fru == 4)
+			return stdsprintf("MCH%hhu", fru-2);
 		else if (fru >= 5 && fru <= 16)
 			return stdsprintf("AMC%02hhu", fru - 4);
 		else if (fru == 30)

@@ -135,8 +135,8 @@ class Card {
 		const std::string get_name() { return name; };
 		uint8_t get_fru() { return fru; };
 		std::string get_slotstring() {
-			if (this->fru == 2 || this->fru == 3)
-				return stdsprintf("MCH%hhu", this->fru-1);
+			if (this->fru == 3 || this->fru == 4)
+				return stdsprintf("MCH%hhu", this->fru-2);
 			else if (this->fru >= 5 && this->fru <= 16)
 				return stdsprintf("AMC%02hhu", this->fru - 4);
 			else if (this->fru == 30)
