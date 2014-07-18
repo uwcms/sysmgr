@@ -135,7 +135,7 @@ on each.
 ---
 
 
--> READ_SENSOR 1 4 "Bottom Temp"
+-> SENSOR_READ 1 4 "Bottom Temp"
 <- RAW 71
 <- THRESHOLD 21.750
 <- EVENTMASK 0x0000
