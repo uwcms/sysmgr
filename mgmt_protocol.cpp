@@ -399,6 +399,7 @@ void protocol_server(uint16_t port)
 
 	if (bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
 		mprintf("Unable to bind address: %d (%s)\n", errno, strerror(errno));
+		mprintf("Attempted to listen on port %hu.\n", port);
 		return;
 	}
 
