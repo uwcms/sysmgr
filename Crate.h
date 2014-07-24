@@ -90,6 +90,7 @@ class Crate {
 		uint8_t get_number() { return number; };
 		enum Mfgr get_mch() { return MCH; };
 		std::string get_description() { return description; };
+		std::string get_ip() { return ip; };
 
 		void add_card(Card *card);
 		Card *get_card(uint8_t fru);
