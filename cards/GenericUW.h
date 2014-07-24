@@ -3,6 +3,7 @@
 
 #include <libxml++/libxml++.h>
 #include <errno.h>
+#include <time.h>
 
 #include "../Crate.h"
 
@@ -156,7 +157,7 @@ class UW_FPGAConfig_Sensor : public Sensor {
 		TaskQueue::taskid_t scan_retry_task;
 	public:
 		UW_FPGAConfig_Sensor(GenericUW *card, uint8_t sensor_number, const void *sdrbuf, uint8_t sdrbuflen)
-			: Sensor(card, sensor_number, sdrbuf, sdrbuflen), scan_retries(0), scan_retry_task(0) { this->scan_sensor(3); };
+			: Sensor(card, sensor_number, sdrbuf, sdrbuflen), scan_retries(0), scan_retry_task(0) { this->scan_sensor(6); };
 
 		virtual ~UW_FPGAConfig_Sensor() {
 			if (this->scan_retry_task)
@@ -171,7 +172,7 @@ class UW_FPGAConfig_Sensor : public Sensor {
 				case 4:  // CFGRDY0
 				case 7:  // CFGRDY1
 				case 10: // CFGRDY2
-					this->scan_sensor(3);
+					this->scan_sensor(6);
 			}
 		}
 
@@ -189,23 +190,33 @@ class UW_FPGAConfig_Sensor : public Sensor {
 				//dmprintf("Performed UW_FPGAConfig_Sensor scan successfully\n");
 				this->scan_retries = -1;
 				this->scan_retry_task = 0;
-				return;
+
+				/* Don't return.  Continue monitoring the sensor actively for
+				 * up to 30 seconds (retries*period) after initial trigger.
+				 * This should handle configuration failures as well as any
+				 * issues with the config sensor reading (from catch block).
+				 */
+				//return;
 			}
 			catch (SensorReadingException &e) {
-				if (this->scan_retries-- > 0)
-					this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+5, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
-				else
-					this->scan_retry_task = 0;
+				// Error.  Retry.
 			}
+
+			// We didn't return.  Cycle through once more.
+			if (this->scan_retries-- > 0)
+				this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+5, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
+			else
+				this->scan_retry_task = 0;
 		}
 		virtual void values_read(uint8_t raw, double *threshold, uint16_t bitmask) {
 			for (int fpgaid = 0; fpgaid < 3; fpgaid++) {
 				uint8_t fpga_bit_base = 2 + (3*fpgaid);
 				bool reqcfg		= bitmask & (1 << (fpga_bit_base+1));
 				bool cfgrdy		= bitmask & (1 << (fpga_bit_base+2));
-				//dmprintf("C%d: %s (%s): FPGA[%hhu] Config Reading: reqcfg:%u cfgrdy:%u\n", this->card->get_crate()->get_number(), this->card->get_name().c_str(), this->card->get_slotstring().c_str(), fpgaid, reqcfg, cfgrdy);
-				if (reqcfg && !cfgrdy)
+				dmprintf("C%d: [%u] %s (%s): FPGA[%hhu] Config Reading: reqcfg:%u cfgrdy:%u\n", this->card->get_crate()->get_number(), time(NULL), this->card->get_name().c_str(), this->card->get_slotstring().c_str(), fpgaid, reqcfg, cfgrdy);
+				if (reqcfg && !cfgrdy) {
 					static_cast<GenericUW*>(this->card)->configure_fpga(fpgaid);
+				}
 			}
 		};
 };
