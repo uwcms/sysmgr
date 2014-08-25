@@ -131,14 +131,20 @@ class IVTableParser : public xmlpp::SaxParser
 
 class GenericUW : public Card {
 	protected:
-		TaskQueue::taskid_t fpga_config_check_task;
+		TaskQueue::taskid_t set_clock_task;
 		std::string ivtable_path;
 	public:
 		GenericUW(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen, std::string ivtable_path)
-			: Card(crate, name, sdrbuf, sdrbuflen), fpga_config_check_task(0), ivtable_path(ivtable_path) {
+			: Card(crate, name, sdrbuf, sdrbuflen), set_clock_task(0), ivtable_path(ivtable_path) {
 				// Set the internal clock on Wisconsin MMCs
-				this->set_clock();
+				this->set_clock_cb(NULL);
 			};
+
+		virtual ~GenericUW() {
+			if (this->set_clock_task)
+				THREADLOCAL.taskqueue.cancel(this->set_clock_task);
+		};
+
 		virtual Sensor *instantiate_sensor(uint8_t sensor_number, const void *sdr, uint8_t sdrlen);
 
 		virtual void hotswap_event(uint8_t oldstate, uint8_t newstate);
@@ -149,6 +155,11 @@ class GenericUW : public Card {
 	protected: 
 		virtual void configure_fpga_pre(uint8_t crate, uint8_t slot, std::string name, uint8_t fpgaid, IVTableParser::cfg_ivtable &ivtable) { };
 		virtual void configure_fpga_post(uint8_t crate, uint8_t slot, std::string name, uint8_t fpgaid, IVTableParser::cfg_ivtable &ivtable) { };
+
+		virtual void set_clock_cb(void *cb_null) {
+			this->set_clock();
+			this->set_clock_task = THREADLOCAL.taskqueue.schedule(time(NULL)+300, callback<void>::create<GenericUW,&GenericUW::set_clock_cb>(this), NULL);
+		}
 };
 
 class UW_FPGAConfig_Sensor : public Sensor {
@@ -169,6 +180,8 @@ class UW_FPGAConfig_Sensor : public Sensor {
 				case 3:  // REQCFG0
 				case 6:  // REQCFG1
 				case 9:  // REQCFG2
+					if (assertion)
+						static_cast<GenericUW*>(this->card)->set_clock();
 				case 4:  // CFGRDY0
 				case 7:  // CFGRDY1
 				case 10: // CFGRDY2
