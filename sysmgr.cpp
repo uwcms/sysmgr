@@ -146,18 +146,18 @@ void *crate_monitor(void *arg)
 			mprintf("C%d: Caught System Exception: %s.  Restarting Crate %d monitoring in %d seconds.\n", crate_no, typeid(typeof(e)).name(), crate_no, (1 << (backoff-1)));
 		}
 		catch (SDRRepositoryNotPopulatedException& e) {
-			if (backoff < 7)
+			if (backoff < 8)
 				backoff++;
 			mprintf("C%d: The SDR repository is not yet populated.  Restarting Crate %d monitoring in %d seconds.\n", crate_no, crate_no, (1 << (backoff-1)));
 		}
 		catch (IPMI_ConnectionFailedException& e) {
-			if (backoff < 7)
+			if (backoff < 8)
 				backoff++;
 			mprintf("C%d: Unable to connect to Crate %d: \"%s\".  Restarting Crate %d monitoring in %d seconds.\n", crate_no, crate_no, e.get_message().c_str(), crate_no, (1 << (backoff-1)));
 		}
 		catch (Sysmgr_Exception& e) {
 			// Local Exception
-			if (backoff < 7)
+			if (backoff < 8)
 				backoff++;
 			if (e.get_message().c_str()[0] != '\0')
 				mprintf("C%d: Caught %s on %s:%d in %s(): %s\n", crate_no, e.get_type().c_str(), e.get_file().c_str(), e.get_line(), e.get_func().c_str(), e.get_message().c_str());
