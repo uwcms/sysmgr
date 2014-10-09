@@ -423,6 +423,30 @@ int main(int argc, char *argv[])
 	}
 
 	/*
+	 * Initialize library crypto routines before spawning threads.
+	 * This connect will fail due to hostname too long, after running the crypt init functions.
+	 *
+	 * Max Hostname Limit: 64
+	 */
+	ipmi_ctx_t dummy_ipmi_ctx = ipmi_ctx_create();
+	if (ipmi_ctx_open_outofband_2_0(dummy_ipmi_ctx,
+				".................................................................",			// hostname
+				NULL,					// username
+				NULL,					// password
+				NULL,						// k_g
+				0,							// k_g_len,
+				4,							// privilege_level
+				0,							// cipher_suite_id
+				0,							// session_timeout
+				5,							// retransmission_timeout
+				IPMI_WORKAROUND_FLAGS_OUTOFBAND_2_0_OPEN_SESSION_PRIVILEGE,	// workaround_flags
+				IPMI_FLAGS_DEFAULT			// flags
+				) == 0) {
+		ipmi_ctx_close(dummy_ipmi_ctx);
+	}
+	ipmi_ctx_destroy(dummy_ipmi_ctx);
+
+	/*
 	 * Instantiate Worker Threads
 	 */
 
