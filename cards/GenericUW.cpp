@@ -224,7 +224,6 @@ void GenericUW::configure_fpga(uint8_t fpgaid)
 }
 
 IVTableParser::cfg_ivtable IVTableParser::ParseIVTable(std::string ivtable_file)
-	// TODO: THREADING
 {
 	ivtable.clear();
 	try {
