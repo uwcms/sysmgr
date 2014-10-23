@@ -198,17 +198,17 @@ class UW_FPGAConfig_Sensor : public Sensor {
 	protected:
 		virtual void scan_sensor_attempt(void *cb_null) {
 			try {
-				//dmprintf("Performing UW_FPGAConfig_Sensor scan with %d retries remaining\n", this->scan_retries);
+				dmprintf("C%d: %s: Performing UW_FPGAConfig_Sensor scan with %d retries remaining\n", CRATE_NO, this->card->get_slotstring().c_str(), this->scan_retries);
 				this->get_event_reading();
-				//dmprintf("Performed UW_FPGAConfig_Sensor scan successfully\n");
-				this->scan_retries = -1;
-				this->scan_retry_task = 0;
+				dmprintf("C%d: %s: Performed UW_FPGAConfig_Sensor scan successfully\n", CRATE_NO, this->card->get_slotstring().c_str());
 
 				/* Don't return.  Continue monitoring the sensor actively for
 				 * up to 30 seconds (retries*period) after initial trigger.
 				 * This should handle configuration failures as well as any
 				 * issues with the config sensor reading (from catch block).
 				 */
+				//this->scan_retries = -1;
+				this->scan_retry_task = 0;
 				//return;
 			}
 			catch (SensorReadingException &e) {
