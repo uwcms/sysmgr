@@ -166,9 +166,9 @@ int crate__parse_sel_cb(ipmi_sel_ctx_t ctx, void *cb_crate)
 	//
 	// Really, lets just not get this stupid error message.
 	// We NEVER care.
-	int olderr = dup(2);
-	close(2);
-	open("/dev/null", O_WRONLY);
+	//int olderr = dup(2);
+	//close(2);
+	//open("/dev/null", O_WRONLY);
 
 	char eventstring[1024];
 	rv = ipmi_sel_parse_read_record_string(ctx,
@@ -180,13 +180,13 @@ int crate__parse_sel_cb(ipmi_sel_ctx_t ctx, void *cb_crate)
 				IPMI_SEL_STRING_FLAGS_VERBOSE|IPMI_SEL_STRING_FLAGS_OUTPUT_NOT_AVAILABLE|IPMI_SEL_STRING_FLAGS_IGNORE_UNAVAILABLE_FIELD);
 
 	// And restore stderr before going ANY farther.
-	dup2(olderr, 2);
-	close(olderr);
+	//dup2(olderr, 2);
+	//close(olderr);
 
 	if (rv < 0)
 		RETMSG(-1, "ipmi_sel_parse_read_record_string() failed: (%d) %s", ipmi_sel_ctx_errnum(ctx), ipmi_sel_ctx_strerror(ipmi_sel_ctx_errnum(ctx)));
 	if (rv >= 0)
-		mprintf("%s\n", eventstring);
+		mprintf("C%d: %s\n", CRATE_NO, eventstring);
 #endif
 
 	uint16_t record_id;
@@ -304,7 +304,7 @@ void Crate::scan_sel(void *cb_ignore)
 
 	fiid_obj_destroy(obj_cmd_rs);
 
-	//dmprintf("%lu.%lu - %lu.%lu\n", this->selscan_lastclr, this->selscan_nextent, newlastclr, entrycount-1);
+	//dmprintf("C%d: %lu.%lu - %lu.%lu\n", CRATE_NO, this->selscan_lastclr, this->selscan_nextent, newlastclr, entrycount-1);
 	if (newlastclr > this->selscan_lastclr) {
 		this->selscan_nextent = 0;
 	}
