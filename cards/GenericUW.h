@@ -7,6 +7,9 @@
 
 #include "../Crate.h"
 
+#define GENERICUW_CONFIG_RETRIES 12
+#define GENERICUW_CONFIG_RETRY_DELAY 15
+
 class IVTableParser : public xmlpp::SaxParser
 {
 	public:
@@ -168,7 +171,7 @@ class UW_FPGAConfig_Sensor : public Sensor {
 		TaskQueue::taskid_t scan_retry_task;
 	public:
 		UW_FPGAConfig_Sensor(GenericUW *card, uint8_t sensor_number, const void *sdrbuf, uint8_t sdrbuflen)
-			: Sensor(card, sensor_number, sdrbuf, sdrbuflen), scan_retries(0), scan_retry_task(0) { this->scan_sensor(6); };
+			: Sensor(card, sensor_number, sdrbuf, sdrbuflen), scan_retries(0), scan_retry_task(0) { this->scan_sensor(GENERICUW_CONFIG_RETRIES); };
 
 		virtual ~UW_FPGAConfig_Sensor() {
 			if (this->scan_retry_task)
@@ -185,7 +188,7 @@ class UW_FPGAConfig_Sensor : public Sensor {
 				case 4:  // CFGRDY0
 				case 7:  // CFGRDY1
 				case 10: // CFGRDY2
-					this->scan_sensor(6);
+					this->scan_sensor(GENERICUW_CONFIG_RETRIES);
 			}
 		}
 
@@ -197,6 +200,14 @@ class UW_FPGAConfig_Sensor : public Sensor {
 
 	protected:
 		virtual void scan_sensor_attempt(void *cb_null) {
+			if (this->card->get_crate()->ctx.sel == NULL) {
+				// The crate is offline.  Hold off until it returns.
+				this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+GENERICUW_CONFIG_RETRY_DELAY, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
+
+				// Do not decrement retry count here.
+				// We're postponing this one, not consuming it.
+				return;
+			}
 			try {
 				dmprintf("C%d: %s: Performing UW_FPGAConfig_Sensor scan with %d retries remaining\n", CRATE_NO, this->card->get_slotstring().c_str(), this->scan_retries);
 				this->get_event_reading();
@@ -217,7 +228,7 @@ class UW_FPGAConfig_Sensor : public Sensor {
 
 			// We didn't return.  Cycle through once more.
 			if (this->scan_retries-- > 0)
-				this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+5, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
+				this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+GENERICUW_CONFIG_RETRY_DELAY, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
 			else
 				this->scan_retry_task = 0;
 		}
