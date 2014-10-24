@@ -1,18 +1,3 @@
-/*
- *
- * 	 TaskQueue.h	by  University of Wisconsin
- *
- * 	 task queue of sysmgr: one TaskQueue per crate waits for ScheduledTasks and executes them
- *
- *
- * $Author$
- * $Revision$
- * $Date$
- *
- *
- */
-
-
 #ifndef _TASKQUEUE_H
 #define _TASKQUEUE_H
 

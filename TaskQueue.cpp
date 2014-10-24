@@ -1,18 +1,3 @@
-/*
- *
- * 	 TaskQueue.cpp
- *
- * 	 methods of sysmgr class TaskQueue    by  University of Wisconsin
- *
- *
- * $Author$
- * $Revision$
- * $Date$
- *
- *
- */
-
-
 #include <queue>
 #include <iostream>
 #include <time.h>
