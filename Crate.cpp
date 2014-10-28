@@ -289,6 +289,11 @@ int crate__parse_sel_cb(ipmi_sel_ctx_t ctx, void *cb_crate)
 
 void Crate::scan_sel(void *cb_ignore)
 {
+	if (!this->ctx.sel) {
+		this->selscan_id = THREADLOCAL.taskqueue.schedule(time(NULL)+1, callback<void>::create<Crate,&Crate::scan_sel>(this), NULL);
+		return;
+	}
+
 	uint16_t reservationid;
 	ipmi_sel_ctx_register_reservation_id(this->ctx.sel, &reservationid);
 
