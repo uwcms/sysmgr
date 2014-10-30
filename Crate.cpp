@@ -691,6 +691,16 @@ void Crate::ipmi_connect()
 	if (this->force_sdr_scan) {
 		mprintf("C%d: Crate not yet ready.  Monitoring.\n", this->number);
 	}
+
+	// Notify cards and sensors of the new connection.
+	for (int i = 0; i < 256; i++) {
+		if (!this->cards[i])
+			continue;
+		this->cards[i]->crate_connected();
+		std::vector<Sensor*> sensors = this->cards[i]->get_sensors();
+		for (std::vector<Sensor*>::iterator it = sensors.begin(); it != sensors.end(); it++)
+			(*it)->crate_connected();
+	}
 }
 
 void Crate::ipmi_disconnect()

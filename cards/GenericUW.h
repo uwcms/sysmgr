@@ -192,6 +192,11 @@ class UW_FPGAConfig_Sensor : public Sensor {
 			}
 		}
 
+		virtual void crate_connected() {
+			dmprintf("C%d: GenericUW in %s: crate_connection() received.  Scanning.\n", CRATE_NO, this->card->get_slotstring().c_str());
+			this->scan_sensor(GENERICUW_CONFIG_RETRIES);
+		}
+
 		virtual void scan_sensor(int retries) {
 			scan_retries = retries;
 			if (!scan_retry_task)

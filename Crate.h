@@ -189,6 +189,7 @@ class Card {
 
 		virtual void sensor_event(Sensor *sensor, bool assertion, uint8_t offset, void *sel_record, uint8_t sel_record_len) { };
 		virtual void hotswap_event(uint8_t oldstate, uint8_t newstate) { };
+		virtual void crate_connected() { };
 
 		virtual int get_sdr(void *sdrbuf, int sdrbuflen) {
 			if (sdrbuflen < this->sdrbuflen)
@@ -231,6 +232,7 @@ class Sensor {
 		virtual std::string get_short_units();
 
 		virtual void sensor_event(bool assertion, uint8_t offset, void *sel_record, uint8_t sel_record_len) { };
+		virtual void crate_connected() { };
 
 		virtual int get_sdr(void *sdrbuf, int sdrbuflen) {
 			if (sdrbuflen < this->sdrbuflen)
