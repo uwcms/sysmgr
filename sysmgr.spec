@@ -12,7 +12,7 @@ Group: Applications/XDAQ
 #Source: http://github.com/uwcms/sysmgr/archive/%{commit}/sysmgr-%{commit}.tar.gz
 URL: https://github.com/uwcms/sysmgr
 BuildRoot: %{PWD}/rpm/buildroot
-Requires: freeipmi >= 1.2.1, libconfuse >= 2.7
+Requires: freeipmi >= 1.2.1, libconfuse >= 2.7, libxml++ >= 2.30.0
 #Prefix: /usr
 
 %description
