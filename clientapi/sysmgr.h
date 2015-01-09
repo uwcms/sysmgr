@@ -283,9 +283,23 @@ namespace sysmgr {
 
 			// cmd = [ NetFN, CMD, ParamList ]
 			// ret = [ CmplCode, ParamList ]
+
+			/* Note that std::string, unlike C strings, are size-based rather
+			 * than null-terminated.  This allows you to embed null bytes in
+			 * your command strings as shown, when using the
+			 * std::string(char *str, int length) constructor:
+			 *
+			 *  char raw_command[5] = { 0x2c, 0x04, 0x00, 0x06, 0x00 };
+			 *  sm.raw_direct(2, 0, 0x82, std::string(raw_command, 5));
+			 *  sm.raw_direct(2, 0, 0x82, std::string("\x2c\x04\x00\x06\x00", 5)); 
+			 */
 			std::string raw_card(uint8_t crate, uint8_t fru, std::string cmd);
 			std::string raw_forwarded(uint8_t crate, uint8_t bridgechan, uint8_t bridgeaddr, uint8_t targetchan, uint8_t targetaddr, std::string cmd);
 			std::string raw_direct(uint8_t crate, uint8_t targetchan, uint8_t targetaddr, std::string cmd);
+
+			std::vector<uint8_t> raw_card(uint8_t crate, uint8_t fru, std::vector<uint8_t> cmd);
+			std::vector<uint8_t> raw_forwarded(uint8_t crate, uint8_t bridgechan, uint8_t bridgeaddr, uint8_t targetchan, uint8_t targetaddr, std::vector<uint8_t> cmd);
+			std::vector<uint8_t> raw_direct(uint8_t crate, uint8_t targetchan, uint8_t targetaddr, std::vector<uint8_t> cmd);
 
 			/* This helper function will return a short human-readable string
 			 * version of the given FRU id, such as MCH1 AMC01 PM1 CU1, or

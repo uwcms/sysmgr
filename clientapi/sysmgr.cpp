@@ -726,8 +726,23 @@ namespace sysmgr {
 	{
 		scope_lock llock(&this->lock);
 
-		std::string parameters;
+		std::vector<uint8_t> cmd8;
 		for (std::string::iterator it = cmd.begin(); it != cmd.end(); it++)
+			cmd8.push_back(static_cast<uint8_t>(*it));
+
+		std::vector<uint8_t> rsp8 = this->raw_card(crate, fru, cmd8);
+
+		std::string raw;
+		for (std::vector<uint8_t>::iterator it = rsp8.begin(); it != rsp8.end(); it++)
+			raw.push_back(static_cast<char>(*it));
+		return raw;
+	}
+	std::vector<uint8_t> sysmgr::raw_card(uint8_t crate, uint8_t fru, std::vector<uint8_t> cmd)
+	{
+		scope_lock llock(&this->lock);
+
+		std::string parameters;
+		for (std::vector<uint8_t>::iterator it = cmd.begin(); it != cmd.end(); it++)
 			parameters += stdsprintf(" 0x%02x", *it);
 
 		uint32_t msgid = this->get_msgid();
@@ -737,9 +752,9 @@ namespace sysmgr {
 		if (rsp.size() < 1)
 			throw sysmgr_exception("RAW_CARD response not understood");
 
-		std::string raw;
+		std::vector<uint8_t> raw;
 		for (std::vector<std::string>::iterator it = rsp.begin(); it != rsp.end(); it++)
-			raw.push_back(static_cast<char>(parse_uint8(*it)));
+			raw.push_back(parse_uint8(*it));
 		return raw;
 	}
 
@@ -747,8 +762,23 @@ namespace sysmgr {
 	{
 		scope_lock llock(&this->lock);
 
-		std::string parameters;
+		std::vector<uint8_t> cmd8;
 		for (std::string::iterator it = cmd.begin(); it != cmd.end(); it++)
+			cmd8.push_back(static_cast<uint8_t>(*it));
+
+		std::vector<uint8_t> rsp8 = this->raw_forwarded(crate, bridgechan, bridgeaddr, targetchan, targetaddr, cmd8);
+
+		std::string raw;
+		for (std::vector<uint8_t>::iterator it = rsp8.begin(); it != rsp8.end(); it++)
+			raw.push_back(static_cast<char>(*it));
+		return raw;
+	}
+	std::vector<uint8_t> sysmgr::raw_forwarded(uint8_t crate, uint8_t bridgechan, uint8_t bridgeaddr, uint8_t targetchan, uint8_t targetaddr, std::vector<uint8_t> cmd)
+	{
+		scope_lock llock(&this->lock);
+
+		std::string parameters;
+		for (std::vector<uint8_t>::iterator it = cmd.begin(); it != cmd.end(); it++)
 			parameters += stdsprintf(" 0x%02x", *it);
 
 		uint32_t msgid = this->get_msgid();
@@ -758,9 +788,9 @@ namespace sysmgr {
 		if (rsp.size() < 1)
 			throw sysmgr_exception("RAW_FORWARDED response not understood");
 
-		std::string raw;
+		std::vector<uint8_t> raw;
 		for (std::vector<std::string>::iterator it = rsp.begin(); it != rsp.end(); it++)
-			raw.push_back(static_cast<char>(parse_uint8(*it)));
+			raw.push_back(parse_uint8(*it));
 		return raw;
 	}
 
@@ -768,8 +798,23 @@ namespace sysmgr {
 	{
 		scope_lock llock(&this->lock);
 
-		std::string parameters;
+		std::vector<uint8_t> cmd8;
 		for (std::string::iterator it = cmd.begin(); it != cmd.end(); it++)
+			cmd8.push_back(static_cast<uint8_t>(*it));
+
+		std::vector<uint8_t> rsp8 = this->raw_direct(crate, targetchan, targetaddr, cmd8);
+
+		std::string raw;
+		for (std::vector<uint8_t>::iterator it = rsp8.begin(); it != rsp8.end(); it++)
+			raw.push_back(static_cast<char>(*it));
+		return raw;
+	}
+	std::vector<uint8_t> sysmgr::raw_direct(uint8_t crate, uint8_t targetchan, uint8_t targetaddr, std::vector<uint8_t> cmd)
+	{
+		scope_lock llock(&this->lock);
+
+		std::string parameters;
+		for (std::vector<uint8_t>::iterator it = cmd.begin(); it != cmd.end(); it++)
 			parameters += stdsprintf(" 0x%02x", *it);
 
 		uint32_t msgid = this->get_msgid();
@@ -779,11 +824,12 @@ namespace sysmgr {
 		if (rsp.size() < 1)
 			throw sysmgr_exception("RAW_DIRECT response not understood");
 
-		std::string raw;
+		std::vector<uint8_t> raw;
 		for (std::vector<std::string>::iterator it = rsp.begin(); it != rsp.end(); it++)
-			raw.push_back(static_cast<char>(parse_uint8(*it)));
+			raw.push_back(parse_uint8(*it));
 		return raw;
 	}
+
 	std::string sysmgr::get_slotstring(uint8_t fru)
 	{
 		if (fru == 3 || fru == 4)
