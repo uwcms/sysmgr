@@ -4,7 +4,7 @@
 Summary: University of Wisconsin IPMI MicroTCA System Manager
 Name: sysmgr
 Version: 1.1.0
-Release: alpha.1%{?dist}.%(git branch | grep \* | cut -d\  -f2)
+Release: 1%{?dist}.%(git branch | grep \* | cut -d\  -f2)
 Packager: Jesra Tikalsky
 #BuildArch: %{_buildarch}
 License: Reserved
