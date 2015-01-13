@@ -102,7 +102,6 @@ namespace sysmgr {
 			bool threshold_set;
 			double threshold;
 			uint16_t eventmask;
-		protected:
 			sensor_reading() : threshold_set(false) { };
 			friend class sysmgr;
 	};
