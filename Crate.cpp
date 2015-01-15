@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdexcept>
+#include <unistd.h>
 
 #include "sysmgr.h"
 #include "Crate.h"
