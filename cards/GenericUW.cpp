@@ -93,7 +93,7 @@ void GenericUW::hotswap_event(uint8_t oldstate, uint8_t newstate)
 	if (newstate == 4) {
 		Sensor *fpgaconfig = this->get_sensor("FPGA Config");
 		if (fpgaconfig)
-			static_cast<UW_FPGAConfig_Sensor*>(fpgaconfig)->scan_sensor(3);
+			static_cast<UW_FPGAConfig_Sensor*>(fpgaconfig)->scan_sensor(GENERICUW_CONFIG_RETRIES);
 	}
 }
 
