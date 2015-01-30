@@ -14,7 +14,7 @@ cards: sysmgr
 commandindex.h commandindex.inc: configure $(wildcard commands/*.h)
 	./configure
 
-sysmgr.conf.example: sysmgr.conf.example.tmpl
+sysmgr.conf.example: sysmgr.conf.example.tmpl $(wildcard cards/*.cpp)
 	./configure
 
 clientapi:
