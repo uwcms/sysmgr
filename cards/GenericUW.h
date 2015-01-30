@@ -1,5 +1,5 @@
-#ifndef _UWCARD_H
-#define _UWCARD_H
+#ifndef _GENERICUW_H
+#define _GENERICUW_H
 
 #include <libxml++/libxml++.h>
 #include <errno.h>
