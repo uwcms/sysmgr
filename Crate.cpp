@@ -1111,7 +1111,7 @@ void Sensor::get_readings(uint8_t *raw, double **threshold, uint16_t *bitmask)
 	if (rv < 0)
 		THROWMSG(SensorReadingException, "ipmi_sensor_read(\"%s\" in %s, \"%s\") failed: (%d) %s", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), ipmi_sensor_read_ctx_errnum(crate->ctx.sensor_read), ipmi_sensor_read_ctx_strerror(ipmi_sensor_read_ctx_errnum(crate->ctx.sensor_read)));
 
-	//dmprintf("C%u: Readings: %-16s\traw:%4hhu  read:%9.3lf  event:%04hx\n", CRATE_NO, this->name.c_str(), *raw, (*threshold ? **threshold : 0), *bitmask);
+	//dmprintf("C%u: %s in %s: Readings: %-16s   raw:%4hhu  read:%9.3lf  event:%04hx\n", CRATE_NO, this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), *raw, (*threshold ? **threshold : 0), *bitmask);
 
 	// I so wish C++ had finally{} blocks.
 	ExceptionSafeFreer freer(threshold ? *threshold : NULL);
