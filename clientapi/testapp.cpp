@@ -119,12 +119,42 @@ int main(int argc, char *argv[]) {
 					}
 #endif
 
-					sysmgr::sensor_reading reading = sm.sensor_read(selected_crate, selected_card, it->name);
+					sysmgr::sensor_reading reading;
+#ifdef EXCEPTION_CHECK
+					try {
+#endif
+						reading = sm.sensor_read(selected_crate, selected_card, it->name);
+#ifdef EXCEPTION_CHECK
+					}
+					catch (sysmgr::sysmgr_exception &e) {
+						printf("Error reading sensor: %s\n", e.message.c_str());
+						continue;
+					}
+#endif
 					printf("\traw:0x%02hhx,", reading.raw);
 					if (reading.threshold_set)
 						printf(" value:%f,", reading.threshold);
 					else
 						printf(" value:-,");
+					printf(" event:0x%04hx", reading.eventmask);
+				}
+				else if (it->type == 'D') {
+					if (!selected_sensor.size())
+						selected_sensor = it->name;
+
+					sysmgr::sensor_reading reading;
+#ifdef EXCEPTION_CHECK
+					try {
+#endif
+						reading = sm.sensor_read(selected_crate, selected_card, it->name);
+#ifdef EXCEPTION_CHECK
+					}
+					catch (sysmgr::sysmgr_exception &e) {
+						printf("Error reading sensor: %s\n", e.message.c_str());
+						continue;
+					}
+#endif
+					printf("\traw:0x%02hhx,", reading.raw);
 					printf(" event:0x%04hx", reading.eventmask);
 				}
 				printf("\n");
