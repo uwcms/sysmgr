@@ -6,7 +6,6 @@ Name: sysmgr
 Version: 1.1.0
 Release: 1%{?dist}
 #Release: 1%{?dist}.%(git branch | grep \* | cut -d\  -f2)
-Packager: Jesra Tikalsky
 #BuildArch: %{_buildarch}
 License: Reserved
 Group: Applications/XDAQ
@@ -91,3 +90,5 @@ rm -rf %{buildroot}
 #%defattr(-,root,root,-)
 
 #%changelog
+
+%debug_package
