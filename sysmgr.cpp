@@ -254,6 +254,13 @@ int main(int argc, char *argv[])
 	pthread_setspecific(threadid_key, &threadid_main);
 
 	mprintf("University of Wisconsin IPMI MicroTCA System Manager\n");
+	if (argc > 1 && strcmp(argv[1], "--version") == 0) {
+		mprintf("\nCompiled from %s@%s\n", GIT_BRANCH, GIT_COMMIT);
+		if (strlen(GIT_DIRTY) > 1)
+			mprintf("%s", GIT_DIRTY);
+		mprintf("\n");
+		return 0;
+	}
 
 	/*
 	 * Parse Configuration
