@@ -1,21 +1,3 @@
-/*
- *
- * 	 mgmt_protocol.cpp
- *
- * 	 classes for sysmgr client handling   by  University of Wisconsin
- *
- *
- * $Author$
- * $Revision$
- * $Date$
- *
- *
- */
-
-
-
-
-
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/socket.h>
