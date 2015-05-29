@@ -213,7 +213,7 @@ void Client::selected_write()
 	if (this->fd == -1)
 		return;
 
-	ssize_t written = ::write(this->fd, this->writebuf.c_str(), this->writebuf.length());
+	ssize_t written = send(this->fd, this->writebuf.c_str(), this->writebuf.length(), MSG_NOSIGNAL);
 	if (written == -1 && errno != EINTR && errno != EAGAIN) {
 		dmprintf("Socket connection %d closed.\n", this->fd);
 		close(this->fd);
