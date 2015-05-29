@@ -362,9 +362,13 @@ int main(int argc, char *argv[])
 		for(unsigned int i = 0; i < cfg_size(cfgmodule, "config"); i++)
 			configdata.push_back(std::string(cfg_getnstr(cfgmodule, "config", i)));
 
+		std::string default_module_path = DEFAULT_MODULE_PATH;
+	   	if (getenv("SYSMGR_MODULE_PATH") != NULL)
+			default_module_path = getenv("SYSMGR_MODULE_PATH");
+
 		std::string modulepath = module;
 		if (modulepath.find("/") == std::string::npos)
-			modulepath = std::string(DEFAULT_MODULE_PATH) +"/"+ modulepath;
+			modulepath = default_module_path +"/"+ modulepath;
 
 		cardmodule_t cm;
 		cm.dl_addr = dlopen(modulepath.c_str(), RTLD_NOW|RTLD_GLOBAL);
