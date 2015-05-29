@@ -14,16 +14,10 @@ void scope_lock::lock()
 bool scope_lock::try_lock()
 {
 	assert(!locked);
-	if (pthread_mutex_trylock(mutex)) {
-		if (errno != EBUSY && errno != EAGAIN) {
-			/*
-			 * man pthread_mutex_trylock says only EBUSY
-			 * pthread_mutex_trylock source code from google says only EBUSY
-			 * gdb says EAGAIN
-			 *
-			 * I guess we go with EAGAIN.
-			 */
-			printf("pthread_mutex_trylock returned errno (%d) %s\n", errno, strerror(errno));
+	int error = pthread_mutex_trylock(mutex);
+	if (error) {
+		if (error != EBUSY) {
+			printf("pthread_mutex_trylock returned error (%d) %s\n", error, strerror(error));
 			fflush(stdout);
 			abort();
 		}
