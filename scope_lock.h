@@ -11,9 +11,7 @@ class scope_lock {
 		scope_lock& operator=(const scope_lock &locker) { abort(); };
 
 	public:
-		scope_lock(pthread_mutex_t *mutex) 
-			: mutex(mutex), locked(false) { this->lock(); };
-		scope_lock(pthread_mutex_t *mutex, bool lock)
+		scope_lock(pthread_mutex_t *mutex, bool lock = true)
 			: mutex(mutex), locked(false) { if (lock) this->lock(); };
 
 		void lock();

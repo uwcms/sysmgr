@@ -24,6 +24,7 @@ bool scope_lock::try_lock()
 			 * I guess we go with EAGAIN.
 			 */
 			printf("pthread_mutex_trylock returned errno (%d) %s\n", errno, strerror(errno));
+			fflush(stdout);
 			abort();
 		}
 		return false;
