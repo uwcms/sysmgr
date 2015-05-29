@@ -66,7 +66,7 @@ void mflush(bool absolute)
 		size_t nextnl = mprintf_linebuf.find("\n");
 
 		if (nextnl == std::string::npos && !absolute && stdout_use_syslog)
-			break;
+			break; // Buffer incomplete lines for syslog output method.
 		if (mprintf_linebuf.size() == 0)
 			break;
 

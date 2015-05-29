@@ -6,8 +6,8 @@
 
 #include <stdlib.h>
 #define THROW(e) throw e(__FILE__, __LINE__, __func__)
-#define THROWMSG(e, f, ...) do { mprintf("%s:%d: THROWMSG(%s, \"" f "\")\n", __FILE__, __LINE__, #e, ##__VA_ARGS__); abort(); } while (0)
-#define RETMSG(e, f, ...) do { mprintf("%s:%d: RETMSG(%s, \"" f "\")\n", __FILE__, __LINE__, #e, ##__VA_ARGS__); abort(); } while (0)
+#define THROWMSG(e, f, ...) do { mprintf("%s:%d: THROWMSG(%s, \"" f "\")\n", __FILE__, __LINE__, #e, ##__VA_ARGS__); mflush(true); abort(); } while (0)
+#define RETMSG(e, f, ...) do { mprintf("%s:%d: RETMSG(%s, \"" f "\")\n", __FILE__, __LINE__, #e, ##__VA_ARGS__); mflush(true); abort(); } while (0)
 
 #else
 
