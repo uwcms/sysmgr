@@ -184,12 +184,8 @@ namespace sysmgr {
 			void operator=(sysmgr &mgr) { assert(false); };
 
 		public:
-			sysmgr(std::string host)
-				: host(host), password(""), port(4681), fd(-1), next_msgid(0) { lock_init(); };
-			sysmgr(std::string host, std::string password)
-				: host(host), password(password), port(4681), fd(-1), next_msgid(0) { lock_init(); };
-			sysmgr(std::string host, std::string password, uint16_t port)
-				: host(host), password(""), port(port), fd(-1), next_msgid(0) { lock_init(); };
+			sysmgr(std::string host, std::string password = "", uint16_t port = 4681)
+				: host(host), password(password), port(port), fd(-1), next_msgid(0) { lock_init(); };
 
 			~sysmgr() { if (this->fd != -1) close(this->fd); }
 
