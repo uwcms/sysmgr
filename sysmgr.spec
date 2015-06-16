@@ -1,11 +1,11 @@
-%define commit %(git log HEAD^..HEAD --format=format:%H)
-%define shortcommit %(git log HEAD^..HEAD --format=format:%h)
+%define commit %(git rev-parse HEAD)
+%define shortcommit %(git rev-parse --short=8 HEAD)
 
 Summary: University of Wisconsin IPMI MicroTCA System Manager
 Name: sysmgr
 Version: 1.1.0
 Release: 1%{?dist}
-#Release: 1%{?dist}.%(git branch | grep \* | cut -d\  -f2)
+#Release: 1%{?dist}.%(git rev-parse --abbrev-ref HEAD | sed s/-/_/g)
 #BuildArch: %{_buildarch}
 License: Reserved
 Group: Applications/XDAQ
