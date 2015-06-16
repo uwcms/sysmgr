@@ -40,6 +40,7 @@ clean:
 rpm: all
 	SYSMGR_ROOT=$(PWD) rpmbuild --sign -ba --quiet --define "_topdir $(PWD)/rpm" sysmgr.spec
 	cp -v $(PWD)/rpm/RPMS/*/*.rpm ./
+	rm -rf rpm/
 
 .PHONY: distclean clean all clientapi rpm cards
 
