@@ -11,7 +11,7 @@ socket_port = 4681
 ratelimit_delay = 100000
 
 # If true, the system manager will run as a daemon, and send stdout to syslog.
-daemonize = false
+daemonize = true
 
 authentication {
 	raw = { }
@@ -26,7 +26,6 @@ crate {
 	password = "vadatech"
 	authtype = none # NONE MD2 MD5 STRAIGHT_PASSWORD_KEY
 	description = "Left Crate"
-	enabled = false
 }
 
 crate {
@@ -36,6 +35,7 @@ crate {
 	password = "vadatech"
 	authtype = none
 	description = "Right Crate"
+	enabled = false
 }
 
 crate {
@@ -45,6 +45,7 @@ crate {
 	password = ""
 	authtype = none
 	description = "Spare Crate"
+	enabled = false
 }
 
 # *** Modules ***
