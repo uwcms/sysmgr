@@ -1,10 +1,9 @@
 #!/bin/sh
 #
-# <daemonname> <summary>
+# sysmgr University of Wisconsin System Manager
 #
-# chkconfig:   <default runlevel(s)> <start> <stop>
-# description: <description, split multiple lines with \
-#              a backslash>
+# chkconfig:   - 80 20
+# description: University of Wisconsin IPMI System Manager
 
 ### BEGIN INIT INFO
 # Provides: 
