@@ -8,7 +8,7 @@ all: sysmgr clientapi cards sysmgr.conf.example tags
 sysmgr: sysmgr.cpp sysmgr.h mprintf.cpp scope_lock.cpp scope_lock.h TaskQueue.cpp TaskQueue.h Callback.h Crate.cpp Crate.h mgmt_protocol.cpp mgmt_protocol.h WakeSock.h commandindex.h commandindex.inc $(wildcard commands/*.h)
 	g++ $(CCOPTS) $(IPMILIBS) -ldl -rdynamic -o $@ \
 		-DGIT_BRANCH=\""$$(git rev-parse --abbrev-ref HEAD)"\" \
-		-DGIT_COMMIT=\""$$(git rev-parse HEAD)"\" \
+		-DGIT_COMMIT=\""$$(git describe HEAD)"\" \
 		-DGIT_DIRTY=\""$$(git status --porcelain -z | sed -re 's/\x0/\\n/g')"\" \
 		sysmgr.cpp mprintf.cpp scope_lock.cpp TaskQueue.cpp Crate.cpp mgmt_protocol.cpp
 
