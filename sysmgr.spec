@@ -3,7 +3,7 @@
 
 Summary: University of Wisconsin IPMI MicroTCA System Manager
 Name: sysmgr
-Version: 1.1.0
+Version: %(git describe --dirty | sed -re 's/^v//;s/-dirty/-d/;s/-/./g')
 Release: 1%{?dist}
 #Release: 1%{?dist}.%(git rev-parse --abbrev-ref HEAD | sed s/-/_/g)
 #BuildArch: %{_buildarch}
