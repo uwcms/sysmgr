@@ -247,6 +247,8 @@ void do_fork() {
 		exit(0);
 }                                                                                                                                                              
 
+extern const char *GIT_BRANCH, *GIT_COMMIT, *GIT_DIRTY;
+
 int main(int argc, char *argv[])
 {
 	uint8_t threadid_main = 0;
@@ -255,7 +257,7 @@ int main(int argc, char *argv[])
 
 	mprintf("University of Wisconsin IPMI MicroTCA System Manager\n");
 	if (argc > 1 && strcmp(argv[1], "--version") == 0) {
-		mprintf("\nCompiled from %s@%s\n", GIT_BRANCH, GIT_COMMIT);
+		mprintf("\nCompiled from %s@%s\n", (GIT_BRANCH[0] ? GIT_BRANCH : "git-archive"), (GIT_COMMIT[0] ? GIT_COMMIT : "$Format:%H$"));
 		if (strlen(GIT_DIRTY) > 1)
 			mprintf("%s", GIT_DIRTY);
 		mprintf("\n");

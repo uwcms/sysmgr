@@ -1,16 +1,24 @@
-DEPOPTS = -MMD -MF .$@.dep -MP
+DEPOPTS = -MMD -MF .dep/$(subst /,^,$(subst .obj/,,$@)).d -MP
 CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread
 
 IPMILIBS := -lfreeipmi -lconfuse $(IPMILIBS)
+LIBS = $(IPMILIBS) -ldl -rdynamic
 
 all: sysmgr clientapi cards sysmgr.conf.example tags
 
-sysmgr: sysmgr.cpp sysmgr.h mprintf.cpp scope_lock.cpp scope_lock.h TaskQueue.cpp TaskQueue.h Callback.h Crate.cpp Crate.h mgmt_protocol.cpp mgmt_protocol.h WakeSock.h commandindex.h commandindex.inc $(wildcard commands/*.h)
-	g++ $(CCOPTS) $(IPMILIBS) -ldl -rdynamic -o $@ \
-		-DGIT_BRANCH=\""$$(git rev-parse --abbrev-ref HEAD)"\" \
-		-DGIT_COMMIT=\""$$(git describe)"\" \
-		-DGIT_DIRTY=\""$$(git status --porcelain -z | sed -re 's/\x0/\\n/g')"\" \
-		sysmgr.cpp mprintf.cpp scope_lock.cpp TaskQueue.cpp Crate.cpp mgmt_protocol.cpp
+sysmgr: .obj/sysmgr.o .obj/mprintf.o .obj/scope_lock.o .obj/TaskQueue.o .obj/Crate.o .obj/mgmt_protocol.o .obj/versioninfo.o
+	g++ $(CCOPTS) $(IPMILIBS) -ldl -rdynamic -o $@ $^
+
+#.PHONY: .obj/versioninfo.o
+.obj/versioninfo.o: $(shell git ls-files)
+	@mkdir -p .dep/ "$(dir $@)"
+	echo "const char *GIT_BRANCH = \"$$(git rev-parse --abbrev-ref HEAD)\"; const char *GIT_COMMIT = \"$$(git describe)\"; const char *GIT_DIRTY = \"$$(git status --porcelain -z | sed -re 's/\x0/\\n/g')\";" | g++ $(CCOPTS) $(DEPOPTS) -c -o $@ -xc++ -
+
+.obj/mgmt_protocol.o: mgmt_protocol.cpp commandindex.h commandindex.inc
+
+.obj/%.o: %.cpp
+	@mkdir -p .dep/ "$(dir $@)"
+	g++ $(CCOPTS) $(DEPOPTS) -c -o $@ $<
 
 cards: sysmgr
 	make -C cards all
@@ -28,11 +36,12 @@ tags: *.cpp *.h
 	ctags -R . 2>/dev/null || true
 
 distclean: clean
-	rm -f .*.dep tags commandindex.h commandindex.inc *.rpm sysmgr.conf.example
+	rm -rf tags commandindex.h commandindex.inc *.rpm sysmgr.conf.example .dep/
 	make -C clientapi distclean
 	make -C cards distclean
 clean:
 	rm -f sysmgr
+	rm -rf .obj/
 	rm -rf rpm/
 	make -C clientapi clean
 	make -C cards clean
@@ -44,4 +53,4 @@ rpm: all
 
 .PHONY: distclean clean all clientapi rpm cards
 
--include $(wildcard .*.dep)
+-include $(wildcard .dep/*)
