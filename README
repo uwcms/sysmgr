@@ -11,7 +11,15 @@ platform for automatic card initialization.
 
 Copy sysmgr.conf.example, packaged in /usr/share/doc/sysmgr-*/ and
 /etc/sysmgr/sysmgr.conf.example, to a location of your choice and edit it to
-match your configuration.  You may then run:
+match your configuration.  You may then run it with:
+# /etc/init.d/sysmgr start
+
+If you wish to have the system manager run automatically at startup, you may
+enable it using chkconfig:
+# chkconfig --add sysmgr
+# chkconfig sysmgr on
+
+It is also possible to run sysmgr from the command line as:
 $ sysmgr sysmgr.conf
 
 If you run 'sysmgr' without an argument it will search for
