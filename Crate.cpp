@@ -673,7 +673,7 @@ void Crate::ipmi_connect()
 		this->ipmi_disconnect();
 		THROWMSG(IPMI_LibraryError, "ipmi_sensor_read_ctx_create() failed");
 	}
-	ipmi_sensor_read_ctx_set_flags(ctx.sensor_read, IPMI_SENSOR_READ_FLAGS_BRIDGE_SENSORS);
+	ipmi_sensor_read_ctx_set_flags(ctx.sensor_read, IPMI_SENSOR_READ_FLAGS_BRIDGE_SENSORS|IPMI_SENSOR_READ_FLAGS_IGNORE_SCANNING_DISABLED);
 
 
 	/* Initialize SEL scanner, to not rescan old events */
