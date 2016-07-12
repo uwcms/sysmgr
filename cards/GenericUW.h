@@ -211,6 +211,7 @@ class UW_FPGAConfig_Sensor : public Sensor {
 
 				// Do not decrement retry count here.
 				// We're postponing this one, not consuming it.
+				dmprintf("C%d: %s: Postpone UW_FPGAConfig_Sensor scan with %d retries remaining: Crate is offline\n", CRATE_NO, this->card->get_slotstring().c_str(), this->scan_retries);
 				return;
 			}
 			try {
