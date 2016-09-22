@@ -1277,7 +1277,7 @@ void Sensor::set_thresholds(threshold_data_t thresholds)
 	if (val != 0) {
 		fiid_obj_destroy(set_thresholds_rq);
 		fiid_obj_destroy(set_thresholds_rs);
-		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), val);
+		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), static_cast<uint32_t>(val));
 	}
 
 	fiid_obj_destroy(set_thresholds_rq);
@@ -1339,7 +1339,7 @@ Sensor::threshold_data_t Sensor::get_thresholds()
 	if (val != 0) {
 		fiid_obj_destroy(get_thresholds_rq);
 		fiid_obj_destroy(get_thresholds_rs);
-		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), val);
+		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), static_cast<uint32_t>(val));
 	}
 
 	fiid_obj_get(get_thresholds_rs, "readable_thresholds.lower_non_critical_threshold", &val);    ret.lnc_set = bool(val);
@@ -1417,7 +1417,7 @@ void Sensor::set_event_enables(event_enable_data_t enables)
 	if (val != 0) {
 		fiid_obj_destroy(set_event_enables_rq);
 		fiid_obj_destroy(set_event_enables_rs);
-		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), val);
+		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), static_cast<uint32_t>(val));
 	}
 
 	// DISABLE STAGE
@@ -1451,7 +1451,7 @@ void Sensor::set_event_enables(event_enable_data_t enables)
 	if (val != 0) {
 		fiid_obj_destroy(set_event_enables_rq);
 		fiid_obj_destroy(set_event_enables_rs);
-		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), val);
+		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), static_cast<uint32_t>(val));
 	}
 
 	fiid_obj_destroy(set_event_enables_rq);
@@ -1504,7 +1504,7 @@ Sensor::event_enable_data_t Sensor::get_event_enables()
 	if (val != 0) {
 		fiid_obj_destroy(get_event_enables_rq);
 		fiid_obj_destroy(get_event_enables_rs);
-		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), val);
+		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), static_cast<uint32_t>(val));
 	}
 
 	fiid_obj_get(get_event_enables_rs, "scanning_on_this_sensor", &val);    ret.scanning = bool(val);
@@ -1565,7 +1565,7 @@ Sensor::hysteresis_data_t Sensor::get_hysteresis()
 	if (val != 0) {
 		fiid_obj_destroy(get_hysteresis_rq);
 		fiid_obj_destroy(get_hysteresis_rs);
-		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), val);
+		THROWMSG(Crate_Exception, "ipmi_cmd_ipmb(\"%s\" (%s), \"%s\") returned completion code %02Xh", this->card->get_name().c_str(), this->card->get_slotstring().c_str(), this->name.c_str(), static_cast<uint32_t>(val));
 	}
 
 	fiid_obj_get(get_hysteresis_rs, "positive_going_threshold_hysteresis_value", &val); ret.goinghigh = val;

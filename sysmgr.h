@@ -84,11 +84,11 @@ extern std::vector<cardmodule_t> card_modules;
 extern WakeSock wake_socket;
 
 
-std::string stdsprintf(const char *fmt, ...);
+std::string stdsprintf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 extern pthread_mutex_t stdout_mutex;
 extern bool stdout_use_syslog;
-int mprintf(const char *fmt, ...);
+int mprintf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 void mflush(bool absolute);
 
 #ifdef DEBUG_OUTPUT
