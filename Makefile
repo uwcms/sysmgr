@@ -1,24 +1,25 @@
 DEPOPTS = -MMD -MF .dep/$(subst /,^,$(subst .obj/,,$@)).d -MP
 CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread
 
-IPMILIBS := -lfreeipmi -lconfuse $(IPMILIBS)
-LIBS = $(IPMILIBS) -ldl -rdynamic
+IPMILIB_PATHS := $(IPMILIB_PATHS)
+IPMILIB_LINKS := $(IPMILIB_LINKS) -lfreeipmi -lconfuse
+LIBS = $(IPMILIB_LINKS) -ldl
 
 all: sysmgr clientapi cards sysmgr.conf.example tags
 
 sysmgr: .obj/sysmgr.o .obj/mprintf.o .obj/scope_lock.o .obj/TaskQueue.o .obj/Crate.o .obj/mgmt_protocol.o .obj/versioninfo.o
-	g++ $(CCOPTS) $(IPMILIBS) -ldl -rdynamic -o $@ $^
+	g++ $(CCOPTS) $(IPMILIB_PATHS) -rdynamic -o $@ $^ $(LIBS)
 
 #.PHONY: .obj/versioninfo.o
 .obj/versioninfo.o: $(shell git ls-files)
 	@mkdir -p .dep/ "$(dir $@)"
-	echo "const char *GIT_BRANCH = \"$$(git rev-parse --abbrev-ref HEAD)\"; const char *GIT_COMMIT = \"$$(git describe)\"; const char *GIT_DIRTY = \"$$(git status --porcelain -z | sed -re 's/\x0/\\n/g')\";" | g++ $(CCOPTS) $(DEPOPTS) -c -o $@ -xc++ -
+	echo "const char *GIT_BRANCH = \"$$(git rev-parse --abbrev-ref HEAD)\"; const char *GIT_COMMIT = \"$$(git describe)\"; const char *GIT_DIRTY = \"$$(git status --porcelain -z | sed -re 's/\x0/\\\\n/g')\";" | tee -a /dev/stderr | g++ $(CCOPTS) $(DEPOPTS) -c -o $@ -xc++ -
 
 .obj/mgmt_protocol.o: mgmt_protocol.cpp commandindex.h commandindex.inc
 
 .obj/%.o: %.cpp
 	@mkdir -p .dep/ "$(dir $@)"
-	g++ $(CCOPTS) $(DEPOPTS) -c -o $@ $<
+	g++ $(CCOPTS) $(DEPOPTS) $(IPMILIB_PATHS) -c -o $@ $<
 
 cards: sysmgr
 	make -C cards all

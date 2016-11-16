@@ -1,0 +1,24 @@
+#dist: trusty
+#sudo: true
+#group: beta
+language: cpp
+install:
+    - '[ -d /tmp/freeipmi_built/lib ] || wget -O /tmp/freeipmi-1.2.1.tar.gz http://ftp.gnu.org/gnu/freeipmi/freeipmi-1.2.1.tar.gz'
+    - '[ -d /tmp/freeipmi_built/lib ] || (cd /tmp; tar -xzvf freeipmi-1.2.1.tar.gz)'
+    - '[ -d /tmp/freeipmi_built/lib ] || (cd /tmp/freeipmi-1.2.1/; ./configure --prefix=/tmp/freeipmi_built)'
+    - '[ -d /tmp/freeipmi_built/lib ] || (cd /tmp/freeipmi-1.2.1/; make -j2 install)'
+    - '[ -d /tmp/freeipmi_built/lib ]'
+cache:
+    directories:
+        - /tmp/freeipmi_built
+script:
+    - export IPMILIB_PATHS="-I/tmp/freeipmi_built/include -L/tmp/freeipmi_built/lib"
+    - export IPMILIB_LINKS=-ldl
+    - make
+compiler: gcc
+addons:
+    apt:
+        packages:
+            - libconfuse-dev
+            - libgcrypt11-dev
+            - libxml++2.6-dev

@@ -5,10 +5,10 @@ CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread -fPIC
 all: libsysmgr.so testapp tags
 
 libsysmgr.so: sysmgr.cpp sysmgr.h ../scope_lock.cpp ../scope_lock.h
-	g++ $(CCOPTS) $(IPMILIBS) -shared -o $@ sysmgr.cpp ../scope_lock.cpp
+	g++ $(CCOPTS) $(IPMILIB_PATHS) -shared -o $@ sysmgr.cpp ../scope_lock.cpp
 
 testapp: testapp.cpp libsysmgr.so
-	g++ $(CCOPTS) -L. -lsysmgr -o $@ testapp.cpp
+	g++ $(CCOPTS) -L. -o $@ testapp.cpp -lsysmgr
 
 tags: *.cpp *.h
 	ctags -R . 2>/dev/null || true
