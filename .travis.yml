@@ -10,7 +10,6 @@ cache:
         - /tmp/freeipmi_built
 script:
     - export IPMILIB_PATHS="-I/tmp/freeipmi_built/include -L/tmp/freeipmi_built/lib"
-    - export IPMILIB_LINKS=-ldl
     - make
 compiler: gcc
 addons:
