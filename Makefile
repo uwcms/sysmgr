@@ -48,10 +48,15 @@ clean:
 	make -C cards clean
 
 rpm: all
-	SYSMGR_ROOT=$(PWD) rpmbuild --sign -ba --quiet --define "_topdir $(PWD)/rpm" sysmgr.spec
+	SYSMGR_ROOT=$(PWD) rpmbuild -ba --quiet --define "_topdir $(PWD)/rpm" sysmgr.spec
 	cp -v $(PWD)/rpm/RPMS/*/*.rpm ./
 	rm -rf rpm/
+	@echo
+	@echo '*** Don'\''t forget to run `make rpmsign`!'
 
-.PHONY: distclean clean all clientapi rpm cards
+rpmsign: rpm
+	rpmsign --macros='/usr/lib/rpm/macros:/usr/lib/rpm/redhat/macros:/etc/rpm/macros:$(HOME)/.rpmmacros' --addsign *.rpm
+
+.PHONY: distclean clean all clientapi rpm rpmsign cards
 
 -include $(wildcard .dep/*)
