@@ -1,0 +1,20 @@
+FROM cern/cc7-base
+MAINTAINER Jesra Tikalsky <jtikalsky@hep.wisc.edu>
+
+RUN yum update -y && \
+	yum groupinstall -y 'Development Tools' && \
+	yum install -y sudo vim && \
+	yum install -y libxml++-devel libconfuse-devel freeipmi-devel && \
+	yum clean all
+
+RUN echo 'ALL ALL = (ALL) NOPASSWD: ALL' > /etc/sudoers && \
+	for I in $(seq 1000 10000); do echo "u${I}:x:${I}:${I}::/root:/bin/bash" >> /etc/passwd; done && \
+	for I in $(seq 1000 10000); do echo "g${I}:x:${I}:" >> /etc/group; done
+
+#WORKDIR /
+#RUN git clone https://github.com/uwcms/sysmgr
+ADD . /sysmgr
+WORKDIR /sysmgr
+
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["/bin/bash"]
