@@ -1,8 +1,8 @@
+#include "sysmgr.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include "sysmgr.h"
 
 #undef	NOISY
 #define	EXCEPTION_CHECK
