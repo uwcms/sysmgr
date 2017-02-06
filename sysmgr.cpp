@@ -465,7 +465,7 @@ int main(int argc, char *argv[])
 
 	for (std::vector<threadlocaldata_t>::iterator it = threadlocal.begin(); it != threadlocal.end(); it++)
 		if (it->enabled)
-			pthread_create(&it->thread, NULL, crate_monitor, (void *)it->crate->get_number());
+			pthread_create(&it->thread, NULL, crate_monitor, reinterpret_cast<void *>(it->crate->get_number()));
 
 #ifndef DEBUG_ONESHOT
 	protocol_server(port);
