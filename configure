@@ -90,7 +90,7 @@ open(CONFTMPL, '<', 'sysmgr.conf.example.tmpl') or die "Cannot open sysmgr.conf.
 open(CONF, '>', 'sysmgr.conf.example') or die "Cannot open sysmgr.conf.example for writing";
 while (<CONFTMPL>) {
 	chomp;
-	if (/^# {MODULES}$/) {
+	if (/^# \{MODULES\}$/) {
 		for my $Card (@Targets) {
 			for my $CfgLine (split /[\r\n]+/, $Card->{config}) {
 				printf CONF "# %s\n", $CfgLine;

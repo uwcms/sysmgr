@@ -35,7 +35,7 @@ class IVTableParser : public xmlpp::SaxParser
 				uint8_t number;
 				std::map<std::string, cfg_card> cards;
 				std::map<std::string, std::string> attrs;
-				cfg_slot(uint8_t type, std::map<std::string, std::string> attrs)
+				cfg_slot(uint8_t number, std::map<std::string, std::string> attrs)
 					: number(number), attrs(attrs) { };
 		};
 		class cfg_crate {
@@ -43,7 +43,7 @@ class IVTableParser : public xmlpp::SaxParser
 				uint8_t number;
 				std::map<uint8_t, cfg_slot> slots;
 				std::map<std::string, std::string> attrs;
-				cfg_crate(uint8_t type, std::map<std::string, std::string> attrs)
+				cfg_crate(uint8_t number, std::map<std::string, std::string> attrs)
 					: number(number), attrs(attrs) { };
 		};
 		class cfg_ivtable {
