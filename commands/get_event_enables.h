@@ -42,7 +42,7 @@ class Command_GET_EVENT_ENABLES : public Command {
 			enables = sensor->get_event_enables();
 			this->ratelimit();
 
-			this->writebuf += stdsprintf("%u %u %u 0x%04x 0x%04x\n", this->msgid, (enables.scanning ? 1 : 0), (enables.events ? 1 : 0), enables.assert, enables.deassert);
+			this->writebuf += stdsprintf("%u %u %u 0x%04x 0x%04x\n", this->msgid, (enables.events ? 1 : 0), (enables.scanning ? 1 : 0), enables.assert, enables.deassert);
 		};
 		// virtual void finalize(Client& client);
 };
