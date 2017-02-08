@@ -723,6 +723,36 @@ namespace sysmgr {
 			throw sysmgr_exception("SET_THRESHOLD response not understood");
 	}
 
+	sensor_event_enables sysmgr::get_sensor_event_enables(uint8_t crate, uint8_t fru, std::string sensor)
+	{
+		scope_lock llock(&this->lock);
+
+		uint32_t msgid = this->get_msgid();
+		this->write(stdsprintf("%u GET_EVENT_ENABLES %hhu %hhu \"%s\"\n", msgid, crate, fru, quote_string(sensor).c_str()));
+
+		std::vector<std::string> rsp = this->get_line(msgid);
+		if (rsp.size() < 4)
+			throw sysmgr_exception("GET_EVENT_ENABLES response not understood");
+		sensor_event_enables ena;
+
+		ena.events_enabled = parse_uint8(rsp[0]);
+		ena.scanning_enabled = parse_uint8(rsp[1]);
+		ena.assertion_bitmask = parse_uint16(rsp[2]);
+		ena.deassertion_bitmask = parse_uint16(rsp[3]);
+
+		return ena;
+	}
+
+	void sysmgr::set_sensor_event_enables(uint8_t crate, uint8_t fru, std::string sensor, sensor_event_enables enables)
+	{
+		scope_lock llock(&this->lock);
+
+		uint32_t msgid = this->get_msgid();
+		this->write(stdsprintf("%u SET_EVENT_ENABLES %hhu %hhu \"%s\" %hhu %hhu 0x%04hx 0x%04hx\n", msgid, crate, fru, quote_string(sensor).c_str(), (enables.events_enabled ? 1 : 0), (enables.scanning_enabled ? 1 : 0), enables.assertion_bitmask, enables.deassertion_bitmask));
+
+		std::vector<std::string> rsp = this->get_line(msgid);
+	}
+
 	std::string sysmgr::raw_card(uint8_t crate, uint8_t fru, std::string cmd)
 	{
 		scope_lock llock(&this->lock);

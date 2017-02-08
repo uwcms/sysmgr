@@ -141,6 +141,39 @@ namespace sysmgr {
 				: lnc_set(false), lc_set(false), lnr_set(false), unc_set(false), uc_set(false), unr_set(false) { };
 	};
 
+	/* Sensor Event Enable Information
+	 *
+	 * events_enabled: "All event messages enabled/disabled from this sensor."
+	 * scanning_enabled: "Sensor scanning enabled/disabled."
+	 *
+	 * The (de)assertion bitmask indicates what states have (de)assertion
+	 * events enabled.
+	 * 
+	 * For threshold sensors, the order of states is:
+	 *
+	 * Bit   Event
+	 * ---   -----
+	 *  0    Lower noncritical going low
+	 *  1    Lower noncritical going high
+	 *  2    Lower critical going low
+	 *  3    Lower critical going high
+	 *  4    Lower nonrecoverable going low
+	 *  5    Lower nonrecoverable going high
+	 *  6    Upper noncritical going low
+	 *  7    Upper noncritical going high
+	 *  8    Upper critical going low
+	 *  9    Upper critical going high
+	 *  a    Upper nonrecoverable going low
+	 *  b    Upper nonrecoverable going high
+	 */
+	class sensor_event_enables {
+		public:
+			bool events_enabled;
+			bool scanning_enabled;
+			uint16_t assertion_bitmask;
+			uint16_t deassertion_bitmask;
+	};
+
 	/* This is the primary system manager class, it reflects your connection to
 	 * the system manager and handles all interactions with it.
 	 */
@@ -276,6 +309,15 @@ namespace sysmgr {
 			 */
 			sensor_thresholds get_sensor_thresholds(uint8_t crate, uint8_t fru, std::string sensor);
 			void set_sensor_thresholds(uint8_t crate, uint8_t fru, std::string sensor, sensor_thresholds thresholds);
+
+			/* These functions allow you to read or write the event enables
+			 * for a sensor.
+			 *
+			 * See the documentation for the sensor_thresholds object for more
+			 * details.
+			 */
+			sensor_event_enables get_sensor_event_enables(uint8_t crate, uint8_t fru, std::string sensor);
+			void set_sensor_event_enables(uint8_t crate, uint8_t fru, std::string sensor, sensor_event_enables enables);
 
 			// cmd = [ NetFN, CMD, ParamList ]
 			// ret = [ CmplCode, ParamList ]
