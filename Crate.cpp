@@ -1352,8 +1352,8 @@ Sensor::threshold_data_t Sensor::get_thresholds()
 
 
 	if (ret.lnc_set) fiid_obj_get(get_thresholds_rs, "lower_non_critical_threshold", &val);    ret.lnc = val;
-	if (ret.lc_set)  fiid_obj_get(get_thresholds_rs, "lower_critical_threshold", &val);        ret.lnc = val;
-	if (ret.lnr_set) fiid_obj_get(get_thresholds_rs, "lower_non_recoverable_threshold", &val); ret.lnc = val;
+	if (ret.lc_set)  fiid_obj_get(get_thresholds_rs, "lower_critical_threshold", &val);        ret.lc = val;
+	if (ret.lnr_set) fiid_obj_get(get_thresholds_rs, "lower_non_recoverable_threshold", &val); ret.lnr = val;
 
 	if (ret.unc_set) fiid_obj_get(get_thresholds_rs, "upper_non_critical_threshold", &val);    ret.unc = val;
 	if (ret.uc_set)  fiid_obj_get(get_thresholds_rs, "upper_critical_threshold", &val);        ret.uc  = val;
