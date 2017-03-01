@@ -22,30 +22,31 @@ sysmgr: .obj/sysmgr.o .obj/mprintf.o .obj/scope_lock.o .obj/TaskQueue.o .obj/Cra
 	g++ $(CCOPTS) $(DEPOPTS) $(IPMILIB_PATHS) -c -o $@ $<
 
 cards: sysmgr
-	make -C cards all
+	$(MAKE) -C cards all
 
-commandindex.h commandindex.inc: configure $(wildcard commands/*.h)
+.configured: configure $(wildcard commands/*.h) sysmgr.conf.example.tmpl $(wildcard cards/*.cpp)
 	./configure
+	-touch .configured
 
-sysmgr.conf.example: sysmgr.conf.example.tmpl $(wildcard cards/*.cpp)
-	./configure
+commandindex.h commandindex.inc sysmgr.conf.example: .configured
 
 clientapi:
-	make -C clientapi all
+	$(MAKE) -C clientapi all
 
 tags: *.cpp *.h
 	ctags -R . 2>/dev/null || true
 
 distclean: clean
 	rm -rf tags commandindex.h commandindex.inc *.rpm sysmgr.conf.example .dep/
-	make -C clientapi distclean
-	make -C cards distclean
+	$(MAKE) -C clientapi distclean
+	$(MAKE) -C cards distclean
 clean:
 	rm -f sysmgr
+	rm -f .configured
 	rm -rf .obj/
 	rm -rf rpm/
-	make -C clientapi clean
-	make -C cards clean
+	$(MAKE) -C clientapi clean
+	$(MAKE) -C cards clean
 
 rpm: all
 	SYSMGR_ROOT=$(PWD) rpmbuild -ba --quiet --define "_topdir $(PWD)/rpm" sysmgr.spec

@@ -15,6 +15,8 @@ BuildRoot: %{PWD}/rpm/buildroot
 Requires: freeipmi >= 1.2.1, libconfuse >= 2.7, libxml++ >= 2.30.0
 #Prefix: /usr
 
+%undefine __python_requires
+
 %description
 The University of Wisconsin IPMI MicroTCA System Manager grants access to
 MicroTCA crates over IPMI, providing basic status information and allowing
@@ -66,6 +68,10 @@ install -m 755 $SYSMGR_ROOT/cards/*.so %{buildroot}/usr/lib64/sysmgr/modules/
 cp -r $SYSMGR_ROOT/cards/doc/ %{buildroot}/usr/share/doc/%{name}-%{version}/modules/
 chmod -R u=rwX,go=rX %{buildroot}/usr/share/doc/%{name}-%{version}/modules/
 #install -m 655 %{_packagedir}/MAINTAINER %{_packagedir}/rpm/RPMBUILD/BUILD/MAINTAINER
+for I in /usr/lib/python*/site-packages; do 
+	mkdir -p %{buildroot}${I}
+	install -m 644 $SYSMGR_ROOT/clientapi/sysmgr.py %{buildroot}${I}
+done
 
 %clean
 rm -rf %{buildroot}
@@ -82,6 +88,7 @@ rm -rf %{buildroot}
 /usr/include/sysmgr.h
 /usr/lib64/libsysmgr.so
 /usr/lib64/sysmgr/modules/
+/usr/lib/
 
 #
 # Files that go in the devel RPM

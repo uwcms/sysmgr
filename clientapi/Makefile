@@ -17,6 +17,7 @@ distclean: clean
 	rm -f .*.dep tags
 clean:
 	rm -f libsysmgr.so testapp
+	rm -rf __pycache__/ *.py[cod]
 
 .PHONY: distclean clean all
 
