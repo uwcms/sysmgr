@@ -11,4 +11,8 @@ tags
 /rpm
 /*.rpm
 
+__pycache__/
+*.py[cod]
+*$py.class
+
 sysmgr.conf
