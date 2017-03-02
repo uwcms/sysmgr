@@ -11,6 +11,9 @@ cache:
 script:
     - export IPMILIB_PATHS="-I/tmp/freeipmi_built/include -L/tmp/freeipmi_built/lib"
     - make
+    - (cd clientapi; python3 -m sysmgr)
+    - export LD_LIBRARY_PATH="/tmp/freeipmi_built/lib"
+    - ./sysmgr --version
 compiler: gcc
 addons:
     apt:
@@ -18,3 +21,4 @@ addons:
             - libconfuse-dev
             - libgcrypt11-dev
             - libxml++2.6-dev
+            - python3

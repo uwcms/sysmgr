@@ -1,8 +1,6 @@
 DEPOPTS = -MMD -MF .$@.dep -MP
 CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread -fPIC
 
-IPMILIBS := -lfreeipmi -lconfuse $(IPMILIBS)
-
 SRC = $(wildcard *.cpp)
 OBJ = $(patsubst %.cpp, %.so, $(SRC))
 
@@ -14,7 +12,7 @@ GenericUW.so: GenericUW.cpp
 	g++ $(CCOPTS) $(IPMILIB_PATHS) $$(pkg-config --cflags --libs libxml++-2.6) -shared -o $@ $< $(IPMILIB_LINKS)
 
 %.so: %.cpp
-	g++ $(CCOPTS) $(IPMILIB_PATHS) -shared -o $@ $<
+	g++ $(CCOPTS) $(IPMILIB_PATHS) -shared -o $@ $< $(IPMILIB_LINKS)
 
 tags: *.cpp *.h
 	ctags -R . 2>/dev/null || true
