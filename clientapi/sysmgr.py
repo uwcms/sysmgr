@@ -216,6 +216,8 @@ class Sysmgr(object):
 
 	@classmethod
 	def fru_to_string(cls, fru):
+		if isinstance(fru, Card):
+			fru = fru.fru
 		if isinstance(fru, type('')):
 			fru = cls.string_to_fru(fru) # Validate it.
 		'''Convert a FRU number to a human-readable string.'''
@@ -238,6 +240,8 @@ class Sysmgr(object):
 
 	@classmethod
 	def string_to_fru(cls, fru):
+		if isinstance(fru, Card):
+			fru = fru.fru
 		if isinstance(fru, numbers.Number):
 			fru = cls.fru_to_string(fru) # Validate it.
 		m = re.match('^([A-Z]+)0*([1-9][0-9]*)$', fru)
@@ -275,6 +279,8 @@ class Sysmgr(object):
 
 		Returns a list of Card objects.
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		return self._rspzip(self._req('LIST_CARDS',crate), ('fru','mstate','name'), typemap={'fru':self.fru_to_string}, adclass=Card)
 
 	def list_sensors(self, crate, fru):
@@ -282,16 +288,22 @@ class Sysmgr(object):
 
 		Returns a list of Sensor objects.
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		fru = self.string_to_fru(fru)
 		return self._rspzip(self._req('LIST_SENSORS',crate,fru), ('name','type','long_unit','short_unit'), adclass=Sensor)
 
-	def sensor_read(self, crate, fru, sensor_name):
+	def sensor_read(self, crate, fru, sensor):
 		'''Retrieve the current readings from a sensor.
 
 		Returns a SensorReading object.
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		fru = self.string_to_fru(fru)
-		rsp = self._req('SENSOR_READ',crate,fru,sensor_name)
+		if isinstance(sensor, Sensor):
+			sensor = sensor.name
+		rsp = self._req('SENSOR_READ',crate,fru,sensor)
 		rawresult = dict(rsp)
 		return SensorReading(**{
 			'raw': rawresult['RAW'],
@@ -304,7 +316,11 @@ class Sysmgr(object):
 		
 		Parsing it is up to you.
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		fru = self.string_to_fru(fru)
+		if isinstance(sensor, Sensor):
+			sensor = sensor.name
 		if sensor is None:
 			sdr = self._req('GET_SDR',crate,fru)
 		else:
@@ -317,8 +333,12 @@ class Sysmgr(object):
 
 		Returns a SensorThresholds object.
 		'''
-		fields = ('lnc', 'lcr', 'lnr', 'unc', 'ucr', 'unr')
+		if isinstance(crate, Crate):
+			crate = crate.number
 		fru = self.string_to_fru(fru)
+		if isinstance(sensor, Sensor):
+			sensor = sensor.name
+		fields = ('lnc', 'lcr', 'lnr', 'unc', 'ucr', 'unr')
 		return self._rspzip(self._req('GET_THRESHOLDS',crate,fru,sensor), fields, adclass=SensorThresholds, typedefault=lambda x: None if x == '-' else x)[0]
 
 	def set_sensor_thresholds(self, crate, fru, sensor, lnc=None, lcr=None, lnr=None, unc=None, ucr=None, unr=None):
@@ -336,7 +356,11 @@ class Sysmgr(object):
 
 		Values not supplied are not set.
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		fru = self.string_to_fru(fru)
+		if isinstance(sensor, Sensor):
+			sensor = sensor.name
 		vals = map(lambda x: '-' if x is None else x, [lnc,lcr,lnr,unc,ucr,unr])
 		self._req('SET_THRESHOLDS',crate,fru,sensor,*vals)
 
@@ -351,7 +375,11 @@ class Sysmgr(object):
 				'assertion_mask',
 				'deassertion_mask',
 				)
+		if isinstance(crate, Crate):
+			crate = crate.number
 		fru = self.string_to_fru(fru)
+		if isinstance(sensor, Sensor):
+			sensor = sensor.name
 		return self._rspzip(self._req('GET_EVENT_ENABLES',crate,fru,sensor), fields, adclass=SensorEventEnables)[0]
 
 	def set_sensor_event_enables(self, crate, fru, sensor, events_enabled, scanning_enabled, assertion_mask, deassertion_mask):
@@ -385,7 +413,11 @@ class Sysmgr(object):
 			 a    Upper nonrecoverable going low
 			 b    Upper nonrecoverable going high
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		fru = self.string_to_fru(fru)
+		if isinstance(sensor, Sensor):
+			sensor = sensor.name
 		self._req('SET_EVENT_ENABLES',crate,fru,sensor,
 				1 if events_enabled else 0,
 				1 if scanning_enabled else 0,
@@ -399,6 +431,8 @@ class Sysmgr(object):
 		cmd =  [ NetFN, CMD, ParamList ]
 		return [ CmplCode, ParamList ]
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		fru = self.string_to_fru(fru)
 		return self._req('RAW_CARD',crate,fru,*cmd)[0]
 
@@ -408,6 +442,8 @@ class Sysmgr(object):
 		cmd =  [ NetFN, CMD, ParamList ]
 		return [ CmplCode, ParamList ]
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		return self._req('RAW_DIRECT', crate, target_chan, target_addr, *cmd)[0]
 
 	def raw_forwarded(self, crate, bridge_chan, bridge_addr, target_chan, target_addr, cmd):
@@ -416,6 +452,8 @@ class Sysmgr(object):
 		cmd =  [ NetFN, CMD, ParamList ]
 		return [ CmplCode, ParamList ]
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		return self._req('RAW_FORWARDED', crate, bridge_chan, bridge_addr, target_chan, target_addr, *cmd)[0]
 
 
@@ -424,7 +462,13 @@ class Sysmgr(object):
 
 		Returns an EventSubscription object.
 		'''
+		if isinstance(crate, Crate):
+			crate = crate.number
 		fru = self.string_to_fru(fru)
+		if isinstance(card_name, Card):
+			card_name = card_name.name
+		if isinstance(sensor_name, Sensor):
+			sensor_name = sensor_name.name
 		rsp = self._req('SUBSCRIBE', crate, fru, card_name, sensor_name, assertion_mask, deassertion_mask)
 		assert rsp[0][0] == 'FILTER'
 		self._event_queue[rsp[0][1]] = []
