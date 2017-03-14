@@ -61,6 +61,7 @@ install -m 755 $SYSMGR_ROOT/sysmgr %{buildroot}/usr/bin/
 install -m 644 $SYSMGR_ROOT/README %{buildroot}/usr/share/doc/%{name}-%{version}/
 install -m 644 $SYSMGR_ROOT/sysmgr.conf.example %{buildroot}/etc/sysmgr/
 install -m 644 $SYSMGR_ROOT/sysmgr.conf.example %{buildroot}/usr/share/doc/%{name}-%{version}/
+install -m 644 $SYSMGR_ROOT/cards/GenericUW_IVTable.xml.example %{buildroot}/usr/share/doc/%{name}-%{version}/
 install -m 755 $SYSMGR_ROOT/init.d_sysmgr.sh %{buildroot}/etc/init.d/sysmgr
 install -m 755 $SYSMGR_ROOT/clientapi/sysmgr.h %{buildroot}/usr/include/
 install -m 755 $SYSMGR_ROOT/clientapi/libsysmgr.so %{buildroot}/usr/lib64/

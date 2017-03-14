@@ -8,7 +8,7 @@
 cardmodule {
 	module = "GenericUW.so"
 	config = {
-		"ivtable=ipconfig.xml",
+		"ivtable=GenericUW_IVTable.xml",
 		"support=WISC CTP-7",
 		"support=WISC CTP-6",
 		"support=WISC CIOX",
