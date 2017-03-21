@@ -65,7 +65,7 @@ rpm: all sysmgr.spec
 ifneq ("$(wildcard rpms/*.rpm)","")
 rpmsign: $(wildcard rpms/*.rpm)
 else
-rpmsign: rpms
+rpmsign: rpm
 endif
 	rpmsign --macros='/usr/lib/rpm/macros:/usr/lib/rpm/redhat/macros:/etc/rpm/macros:$(HOME)/.rpmmacros' --addsign rpms/*.rpm
 
