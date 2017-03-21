@@ -66,9 +66,12 @@ extern "C" {
 		return true;
 	}
 	Card *instantiate_card(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen) {
-		for (std::vector<std::string>::iterator it = supported_cards.begin(); it != supported_cards.end(); it++)
-			if (*it == name)
+		for (std::vector<std::string>::iterator it = supported_cards.begin(); it != supported_cards.end(); it++) {
+			if (*it == name) {
+				dmprintf("Found and supporting card %s with GenericUW\n", name.c_str());
 				return new GenericUW(crate, name, sdrbuf, sdrbuflen, ivtable_path);
+			}
+		}
 		return NULL;
 	}
 }

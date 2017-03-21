@@ -8,6 +8,9 @@ all: cards tags
 
 cards: $(OBJ)
 
+UWDirect.so: UWDirect.cpp
+	g++ $(CCOPTS) $(IPMILIB_PATHS) $$(pkg-config --cflags --libs libxml++-2.6) -shared -o $@ $< $(IPMILIB_LINKS)
+
 GenericUW.so: GenericUW.cpp
 	g++ $(CCOPTS) $(IPMILIB_PATHS) $$(pkg-config --cflags --libs libxml++-2.6) -shared -o $@ $< $(IPMILIB_LINKS)
 
