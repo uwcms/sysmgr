@@ -63,7 +63,7 @@ rpm: all sysmgr.spec
 	@echo '*** Don'\''t forget to run `make rpmsign`!'
 
 ifneq ("$(wildcard rpms/*.rpm)","")
-rpmsign: $(wildcard rpms/*.rpm)
+rpmsign:
 else
 rpmsign: rpm
 endif
