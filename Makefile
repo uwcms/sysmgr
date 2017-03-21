@@ -5,7 +5,7 @@ IPMILIB_PATHS := $(IPMILIB_PATHS)
 IPMILIB_LINKS := $(IPMILIB_LINKS) -lfreeipmi -lconfuse
 LIBS = $(IPMILIB_LINKS) -ldl
 
-all: sysmgr clientapi cards sysmgr.conf.example tags
+all: sysmgr clientapi cards sysmgr.example.conf tags
 
 sysmgr: .obj/sysmgr.o .obj/mprintf.o .obj/scope_lock.o .obj/TaskQueue.o .obj/Crate.o .obj/mgmt_protocol.o .obj/versioninfo.o
 	g++ $(CCOPTS) $(IPMILIB_PATHS) -rdynamic -o $@ $^ $(LIBS)
@@ -24,11 +24,13 @@ sysmgr: .obj/sysmgr.o .obj/mprintf.o .obj/scope_lock.o .obj/TaskQueue.o .obj/Cra
 cards: sysmgr
 	$(MAKE) -C cards all
 
-.configured: configure $(wildcard commands/*.h) sysmgr.conf.example.tmpl $(wildcard cards/*.cpp)
-	./configure
-	-touch .configured
+.configured: configure.py $(wildcard commands/*.h) sysmgr.example.tmpl.conf $(wildcard cards/*.cpp) sysmgr.tmpl.spec
+	./configure.py
+	touch .configured
 
-commandindex.h commandindex.inc sysmgr.conf.example: .configured
+commandindex.h: .configured
+commandindex.inc: .configured
+sysmgr.example.conf: .configured
 
 clientapi:
 	$(MAKE) -C clientapi all
@@ -36,28 +38,37 @@ clientapi:
 tags: *.cpp *.h
 	ctags -R . 2>/dev/null || true
 
-distclean: clean
-	rm -rf tags commandindex.h commandindex.inc *.rpm sysmgr.conf.example .dep/
+distclean: clean rpmclean
+	rm -rf .configured tags commandindex.h commandindex.inc sysmgr.example.conf sysmgr.spec .dep/
 	$(MAKE) -C clientapi distclean
 	$(MAKE) -C cards distclean
 clean:
 	rm -f sysmgr
-	rm -f .configured
 	rm -rf .obj/
-	rm -rf rpm/
+	rm -rf rpmbuild/
 	$(MAKE) -C clientapi clean
 	$(MAKE) -C cards clean
+rpmclean:
+	rm -rf *.rpm rpms/ rpmbuild/
 
-rpm: all
-	SYSMGR_ROOT=$(PWD) rpmbuild -ba --quiet --define "_topdir $(PWD)/rpm" sysmgr.spec
-	cp -v $(PWD)/rpm/RPMS/*/*.rpm ./
-	rm -rf rpm/
+sysmgr.spec: .configured
+
+rpm: all sysmgr.spec
+	SYSMGR_ROOT=$(PWD) rpmbuild -ba --quiet --define "_topdir $(PWD)/rpmbuild" sysmgr.spec
+	rm -rf rpms/
+	mkdir -p rpms/
+	cp -v $(PWD)/rpmbuild/RPMS/*/*.rpm rpms/
+	rm -rf rpmbuild/
 	@echo
 	@echo '*** Don'\''t forget to run `make rpmsign`!'
 
-rpmsign: rpm
-	rpmsign --macros='/usr/lib/rpm/macros:/usr/lib/rpm/redhat/macros:/etc/rpm/macros:$(HOME)/.rpmmacros' --addsign *.rpm
+ifneq ("$(wildcard rpms/*.rpm)","")
+rpmsign: $(wildcard rpms/*.rpm)
+else
+rpmsign: rpms
+endif
+	rpmsign --macros='/usr/lib/rpm/macros:/usr/lib/rpm/redhat/macros:/etc/rpm/macros:$(HOME)/.rpmmacros' --addsign rpms/*.rpm
 
-.PHONY: distclean clean all clientapi rpm rpmsign cards
+.PHONY: distclean clean rpmclean all clientapi rpm rpmsign cards
 
 -include $(wildcard .dep/*)
