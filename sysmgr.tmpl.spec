@@ -19,6 +19,7 @@ URL: https://github.com/uwcms/sysmgr
 BuildRoot: %{PWD}/rpm/buildroot
 Requires: freeipmi >= 1.2.1, libconfuse >= 2.7, libxml++ >= 2.30.0
 Provides: sysmgr_module_api(%{sysmgr_module_api_version})
+Conflicts: sysmgr < 1.1.5
 #Prefix: /usr
 
 %undefine __python_requires
@@ -35,6 +36,7 @@ platform for automatic card initialization.
 Summary:  University of Wisconsin IPMI MicroTCA System Manager {{ card['name'] }} Card Module
 Group:    Applications/XDAQ
 Requires: sysmgr_module_api(%{sysmgr_module_api_version})
+Conflicts: sysmgr < 1.1.5
 
 %description module-{{ card['name'] }}
 The {{ card['name'] }} card support module for the University of Wisconsin IPMI MicroTCA System Manager.
@@ -43,6 +45,7 @@ The {{ card['name'] }} card support module for the University of Wisconsin IPMI 
 %package client
 Summary:  University of Wisconsin IPMI MicroTCA System Manager C++ Client API
 Group:    Applications/XDAQ
+Conflicts: sysmgr < 1.1.5
 
 %description client
 The C++ client API library for communicating with the University of Wisconsin IPMI MicroTCA System Manager.
@@ -51,6 +54,7 @@ The C++ client API library for communicating with the University of Wisconsin IP
 Summary:  University of Wisconsin IPMI MicroTCA System Manager C++ Client API
 Group:    Applications/XDAQ
 Requires: sysmgr-client = %{sysmgr_version}
+Conflicts: sysmgr < 1.1.5
 
 %description client-devel
 The C++ client API library for communicating with the University of Wisconsin IPMI MicroTCA System Manager.
@@ -59,6 +63,7 @@ The C++ client API library for communicating with the University of Wisconsin IP
 %package -n python{{ pyver.replace('.','') }}-sysmgr
 Summary:  University of Wisconsin IPMI MicroTCA System Manager Python {{ pyver }} Client API
 Group:    Applications/XDAQ
+Conflicts: sysmgr < 1.1.5
 
 %description -n python{{ pyver.replace('.','') }}-sysmgr
 The python {{ pyver }} client API library for communicating with the University of Wisconsin IPMI MicroTCA System Manager.
