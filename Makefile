@@ -5,7 +5,7 @@ IPMILIB_PATHS := $(IPMILIB_PATHS)
 IPMILIB_LINKS := $(IPMILIB_LINKS) -lfreeipmi -lconfuse
 LIBS = $(IPMILIB_LINKS) -ldl
 
-all: sysmgr clientapi cards sysmgr.example.conf tags
+all: sysmgr clientapi cards sysmgr.example.conf
 
 sysmgr: .obj/sysmgr.o .obj/mprintf.o .obj/scope_lock.o .obj/TaskQueue.o .obj/Crate.o .obj/mgmt_protocol.o .obj/versioninfo.o
 	g++ $(CCOPTS) $(IPMILIB_PATHS) -rdynamic -o $@ $^ $(LIBS)
@@ -35,11 +35,8 @@ sysmgr.example.conf: .configured
 clientapi:
 	$(MAKE) -C clientapi all
 
-tags: *.cpp *.h
-	ctags -R . 2>/dev/null || true
-
 distclean: clean rpmclean
-	rm -rf .configured tags commandindex.h commandindex.inc sysmgr.example.conf sysmgr.spec .dep/
+	rm -rf .configured commandindex.h commandindex.inc sysmgr.example.conf sysmgr.spec .dep/
 	$(MAKE) -C clientapi distclean
 	$(MAKE) -C cards distclean
 clean:
