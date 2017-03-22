@@ -1,16 +1,25 @@
 FROM cern/cc7-base
 MAINTAINER Jesra Tikalsky <jtikalsky@hep.wisc.edu>
 
-RUN yum update -y && \
+RUN \
+	curl -s https://www.hep.wisc.edu/uwcms-repos/el7/release/uwcms.repo -o /etc/yum.repos.d/uwcms.repo && \
+	curl -s https://www.hep.wisc.edu/uwcms-repos/el7/unstable/uwcms-unstable.repo -o /etc/yum.repos.d/uwcms-unstable.repo && \
+	curl -s https://www.hep.wisc.edu/uwcms-repos/5B766A47.asc -o /5B766A47.asc && \
+	rpm --import /5B766A47.asc && \
+	rm /5B766A47.asc && \
+	yum update -y && \
 	yum groupinstall -y 'Development Tools' && \
-	yum install -y python python2-future python34u python-tornado && \
-	yum install -y sudo vim && \
-	yum install -y libxml++-devel libconfuse-devel freeipmi-devel && \
+	yum install -y \
+		python python2-future python34 python-tornado \
+		sudo vim createrepo \
+		libxml++-devel libconfuse-devel freeipmi-devel && \
 	yum clean all
 
 RUN echo 'ALL ALL = (ALL) NOPASSWD: ALL' > /etc/sudoers && \
 	for I in $(seq 1000 10000); do echo "u${I}:x:${I}:${I}::/root:/bin/bash" >> /etc/passwd; done && \
 	for I in $(seq 1000 10000); do echo "g${I}:x:${I}:" >> /etc/group; done
+
+RUN echo -e '[sysmgr-local]\nname=Local System Manager Repository\nbaseurl=file:///sysmgr/rpms\ngpgcheck=0\nenabled=1\nskip_if_unavailable=1' > /etc/yum.repos.d/sysmgr-local.repo
 
 #WORKDIR /
 #RUN git clone https://github.com/uwcms/sysmgr
