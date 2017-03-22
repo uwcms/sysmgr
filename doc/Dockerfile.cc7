@@ -3,7 +3,7 @@ MAINTAINER Jesra Tikalsky <jtikalsky@hep.wisc.edu>
 
 RUN yum update -y && \
 	yum groupinstall -y 'Development Tools' && \
-	yum install -y python python2-future python34u && \
+	yum install -y python python2-future python34u python-tornado && \
 	yum install -y sudo vim && \
 	yum install -y libxml++-devel libconfuse-devel freeipmi-devel && \
 	yum clean all
