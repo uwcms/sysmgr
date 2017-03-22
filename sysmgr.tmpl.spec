@@ -73,6 +73,7 @@ The python {{ pyver }} client API library for communicating with the University 
 Summary:  University of Wisconsin IPMI MicroTCA System Manager - All Components
 Group:    Applications/XDAQ
 Requires: sysmgr = %{sysmgr_version}
+Obsoletes: sysmgr < 1.1.5
 {% for card in cards.values() %}
 Requires: sysmgr-module-{{ card['name'] }} = %{sysmgr_version}
 {% end %}
