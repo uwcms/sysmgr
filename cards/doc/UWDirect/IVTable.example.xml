@@ -1,0 +1,19 @@
+<IVTable>
+	<Crate number="1">
+		<Slot number="1">
+			<Card type="WISC CTP-7"><FPGA id="0">1 192 168 1 41 255 255 0 0 192 168 1 4 192 168 1 4 0 0</FPGA></Card>
+			<Card type="WISC CIOZ"><FPGA id="0">1 192 168 1 41 255 255 0 0 192 168 1 4 192 168 1 4 0 0</FPGA></Card>
+		</Slot>
+		<Slot number="2">
+			<Card type="WISC CTP-7"><FPGA id="0">2 192 168 1 42 255 255 0 0 192 168 1 4 192 168 1 4 0 0</FPGA></Card>
+			<Card type="WISC CIOZ"><FPGA id="0">2 192 168 1 42 255 255 0 0 192 168 1 4 192 168 1 4 0 0</FPGA></Card>
+		</Slot>
+		<Slot number="12">
+			<Card type="WISC CTP-7"><FPGA id="0">12 192 168 1 52 255 255 0 0 192 168 1 4 192 168 1 4 0 0</FPGA></Card>
+			<Card type="WISC CIOZ"><FPGA id="0">12 192 168 1 52 255 255 0 0 192 168 1 4 192 168 1 4 0 0</FPGA></Card>
+		</Slot>
+		<Slot number="13">
+			<Card type="BU AMC13"><FPGA id="0">13 255 255 0 0 192 168 1 54 0 0</FPGA><FPGA id="1">13 255 255 0 0 192 168 1 53 0 0</FPGA></Card>
+		</Slot>
+	</Crate>
+</IVTable>

@@ -1,0 +1,8 @@
+This module provides an implementation of the IPMI based initialization vector
+delivery method supported by University of Wisconsin MMCs as well as any other
+compatible MMC.  This module is designed to accept arbitrary pre-defined
+configuration vectors and supply them to multiple types of compatible cards.
+
+An example initialization vector table supporting multiple fpgas on multiple
+cards in multiple slots is supplied.  When configuration is requested, the
+correct record is loaded from this file on-demand and provided to the card.

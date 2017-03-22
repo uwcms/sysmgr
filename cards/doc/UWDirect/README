@@ -1,0 +1,11 @@
+This module provides an extended implementation of the IPMI based
+initialization vector delivery method supplied by the GenericUW module which
+does not rely on MCH sensor data for its polling-based checks but instead makes
+direct queries to the cards it services.  This allows it to bypass certain
+types of MCH irregularities in sensor recognition, but does not affect failures
+in event-based triggering when a card requests reinitialization without
+changing M-state.
+
+An example initialization vector table supporting multiple fpgas on multiple
+cards in multiple slots is supplied.  When configuration is requested, the
+correct record is loaded from this file on-demand and provided to the card.
