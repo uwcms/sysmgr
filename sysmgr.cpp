@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
 		LOAD_SYM(MIN_APIVER, "variable");
 		cm.MIN_APIVER = *reinterpret_cast<uint32_t*>(sym);
 
-		if (cm.APIVER < 2 || cm.MIN_APIVER > 2) {
+		if (cm.APIVER < CARD_MODULE_API_VERSION || cm.MIN_APIVER > CARD_MODULE_API_VERSION) {
 			mprintf("Error loading module %s: Incompatible API version %u\n", module, cm.APIVER);
 		}
 

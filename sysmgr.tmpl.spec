@@ -2,6 +2,8 @@
 %define shortcommit %(git rev-parse --short=8 HEAD)
 %define sysmgr_version %(git describe --dirty | sed -re 's/^v//;s/-dirty/-d/;s/-/./g')
 
+%define sysmgr_module_api_version %(echo -e '#include "sysmgr.h"\\nCARD_MODULE_API_VERSION' | g++ -E -x c++ - | tail -n1)
+
 {% set pyverinfo = sorted(map(lambda x: (re.sub('.*/python([0-9.]+)/.*','\\1',x), x), glob.glob('/usr/lib/python*/site-packages'))) %}
 
 Summary: University of Wisconsin IPMI MicroTCA System Manager
@@ -16,6 +18,7 @@ Group: Applications/XDAQ
 URL: https://github.com/uwcms/sysmgr
 BuildRoot: %{PWD}/rpm/buildroot
 Requires: freeipmi >= 1.2.1, libconfuse >= 2.7, libxml++ >= 2.30.0
+Provides: sysmgr_module_api(%{sysmgr_module_api_version})
 #Prefix: /usr
 
 %undefine __python_requires
@@ -31,7 +34,7 @@ platform for automatic card initialization.
 %package module-{{ card['name'] }}
 Summary:  University of Wisconsin IPMI MicroTCA System Manager {{ card['name'] }} Card Module
 Group:    Applications/XDAQ
-Requires: sysmgr = %{sysmgr_version}
+Requires: sysmgr_module_api(%{sysmgr_module_api_version})
 
 %description module-{{ card['name'] }}
 The {{ card['name'] }} card support module for the University of Wisconsin IPMI MicroTCA System Manager.
@@ -75,7 +78,7 @@ Requires: python{{ pyver.replace('.','') }}-sysmgr = %{sysmgr_version}
 {% end %}
 
 %description complete
-The C++ client API library for communicating with the University of Wisconsin IPMI MicroTCA System Manager.
+All component packages of the University of Wisconsin IPMI MicroTCA System Manager.
 
 #%prep
 
@@ -110,8 +113,8 @@ mkdir -p %{buildroot}/usr/share/doc/%{name}-%{version}/modules/{{ card }}
 {% end %}
 chmod -R u=rwX,go=rX %{buildroot}/usr/share/doc/%{name}-%{version}/modules/
 {% for pyver, pylibdir in pyverinfo %}
-mkdir -p %{buildroot}{{ pylibdir }}
-install -m 644 $SYSMGR_ROOT/clientapi/sysmgr.py %{buildroot}{{ pylibdir }}
+mkdir -p %{buildroot}{{ pylibdir }}/sysmgr
+install -m 644 $SYSMGR_ROOT/clientapi/sysmgr.py %{buildroot}{{ pylibdir }}/sysmgr/__init__.py
 {% end %}
 
 %clean
@@ -145,7 +148,7 @@ rm -rf %{buildroot}
 
 {% for pyver, pylibdir in pyverinfo %}
 %files -n python{{ pyver.replace('.','') }}-sysmgr
-{{ pylibdir }}
+{{ pylibdir }}/sysmgr
 {% end %}
 
 %files complete

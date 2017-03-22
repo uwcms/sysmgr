@@ -72,6 +72,7 @@ extern std::queue<EventData> events;
 
 class Card;
 
+#define CARD_MODULE_API_VERSION 2
 typedef struct {
 	void *dl_addr;
 	uint32_t APIVER;
