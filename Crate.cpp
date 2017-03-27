@@ -158,21 +158,21 @@ int crate__parse_sel_cb(ipmi_sel_ctx_t ctx, void *cb_crate)
 
 	int rv;
 
-#ifdef PRINT_SEL
-	/*
-	 * Print out Event String for debug/testing
-	 */
+	if (crate->log_sel) {
+		/*
+		 * Print out Event String for debug/testing
+		 */
 
-	// FreeIPMI Library TRACE build option override
-	//
-	// Really, lets just not get this stupid error message.
-	// We NEVER care.
-	//int olderr = dup(2);
-	//close(2);
-	//open("/dev/null", O_WRONLY);
+		// FreeIPMI Library TRACE build option override
+		//
+		// Really, lets just not get this stupid error message.
+		// We NEVER care.
+		//int olderr = dup(2);
+		//close(2);
+		//open("/dev/null", O_WRONLY);
 
-	char eventstring[1024];
-	rv = ipmi_sel_parse_read_record_string(ctx,
+		char eventstring[1024];
+		rv = ipmi_sel_parse_read_record_string(ctx,
 				"%i: %d %t: %T sensor %s %k: %e",
 				NULL,
 				0,
@@ -180,15 +180,15 @@ int crate__parse_sel_cb(ipmi_sel_ctx_t ctx, void *cb_crate)
 				1024,
 				IPMI_SEL_STRING_FLAGS_VERBOSE|IPMI_SEL_STRING_FLAGS_OUTPUT_NOT_AVAILABLE|IPMI_SEL_STRING_FLAGS_IGNORE_UNAVAILABLE_FIELD);
 
-	// And restore stderr before going ANY farther.
-	//dup2(olderr, 2);
-	//close(olderr);
+		// And restore stderr before going ANY farther.
+		//dup2(olderr, 2);
+		//close(olderr);
 
-	if (rv < 0)
-		RETMSG(-1, "ipmi_sel_parse_read_record_string() failed: (%d) %s", ipmi_sel_ctx_errnum(ctx), ipmi_sel_ctx_strerror(ipmi_sel_ctx_errnum(ctx)));
-	if (rv >= 0)
-		mprintf("C%d: %s\n", CRATE_NO, eventstring);
-#endif
+		if (rv < 0)
+			RETMSG(-1, "ipmi_sel_parse_read_record_string() failed: (%d) %s", ipmi_sel_ctx_errnum(ctx), ipmi_sel_ctx_strerror(ipmi_sel_ctx_errnum(ctx)));
+		if (rv >= 0)
+			mprintf("C%d: SEL Entry: %s\n", CRATE_NO, eventstring);
+	}
 
 	uint16_t record_id;
 	rv = ipmi_sel_parse_read_record_id(ctx, NULL, 0, &record_id);

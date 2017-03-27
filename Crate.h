@@ -45,6 +45,7 @@ class Crate {
 		char *pass;
 		uint8_t ipmi15_authentication_type;
 		std::string description;
+		bool log_sel;
 
 		TaskQueue::taskid_t selscan_id;
 		TaskQueue::taskid_t sdrscan_id;
@@ -69,8 +70,8 @@ class Crate {
 				void *cb_data);
 
 	public:
-		Crate(uint8_t number, enum Mfgr MCH, std::string ip, const char *user, const char *pass, uint8_t ipmi15_authentication_type, std::string description)
-			: number(number), MCH(MCH), ip(ip), ipmi15_authentication_type(ipmi15_authentication_type), description(description), selscan_id(0), sdrscan_id(0), selscan_lastclr(0), selscan_nextent(0), force_sdr_scan(false), sdr_scan_retries(0), sendmessage_seq(0) {
+		Crate(uint8_t number, enum Mfgr MCH, std::string ip, const char *user, const char *pass, uint8_t ipmi15_authentication_type, std::string description, bool log_sel)
+			: number(number), MCH(MCH), ip(ip), ipmi15_authentication_type(ipmi15_authentication_type), description(description), log_sel(log_sel), selscan_id(0), sdrscan_id(0), selscan_lastclr(0), selscan_nextent(0), force_sdr_scan(false), sdr_scan_retries(0), sendmessage_seq(0) {
 				memset(&this->ctx, 0, sizeof(this->ctx));
 				memset(&this->cards, 0, sizeof(this->cards));
 				memset(&this->sdrfile, 0, sizeof(this->sdrfile));

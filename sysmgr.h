@@ -7,7 +7,6 @@
 #undef	DEBUG_ONESHOT
 #undef	DEBUG_OUTPUT
 #undef	DEBUG_SOCKET_FLOW
-#undef	PRINT_SEL
 #define	ABSOLUTE_HOTSWAP // Check sensor value, not event data.
 
 #define CONFIG_PATH "/etc/sysmgr"

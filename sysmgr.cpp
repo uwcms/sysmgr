@@ -285,6 +285,7 @@ int main(int argc, char *argv[])
 		CFG_INT_CB(const_cast<char *>("authtype"), 0, CFGF_NONE, cfg_parse_authtype),
 		CFG_INT_CB(const_cast<char *>("mch"), 0, CFGF_NONE, cfg_parse_MCH),
 		CFG_BOOL(const_cast<char *>("enabled"), cfg_true, CFGF_NONE),
+		CFG_BOOL(const_cast<char *>("log_sel"), cfg_false, CFGF_NONE),
 		CFG_END()
 	};
 
@@ -347,7 +348,7 @@ int main(int argc, char *argv[])
 		const char *user = cfg_getstr(cfgcrate, "username");
 		const char *pass = cfg_getstr(cfgcrate, "password");
 
-		Crate *crate = new Crate(i+1, MCH, cfg_getstr(cfgcrate, "host"), (user[0] ? user : NULL), (pass[0] ? pass : NULL), cfg_getint(cfgcrate, "authtype"), cfg_getstr(cfgcrate, "description"));
+		Crate *crate = new Crate(i+1, MCH, cfg_getstr(cfgcrate, "host"), (user[0] ? user : NULL), (pass[0] ? pass : NULL), cfg_getint(cfgcrate, "authtype"), cfg_getstr(cfgcrate, "description"), (cfg_getbool(cfgcrate, "log_sel") == cfg_true));
 
 		bool enabled = (cfg_getbool(cfgcrate, "enabled") == cfg_true);
 		if (enabled)
