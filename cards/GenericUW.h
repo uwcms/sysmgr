@@ -236,17 +236,21 @@ class UW_FPGAConfig_Sensor : public Sensor {
 			}
 
 			// We didn't return.  Cycle through once more.
-			if (this->scan_retries-- > 0)
+			if (--this->scan_retries > 0) {
+				dmprintf("C%d: %s: UW_FPGAConfig_Sensor scan: Scheduling next polling.  %d remaining\n", CRATE_NO, this->card->get_slotstring().c_str(), this->scan_retries);
 				this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+static_cast<GenericUW*>(this->card)->cfg_poll_delay, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
-			else
+			}
+			else {
+				dmprintf("C%d: %s: UW_FPGAConfig_Sensor scan: No further polling scheduled.\n", CRATE_NO, this->card->get_slotstring().c_str());
 				this->scan_retry_task = 0;
+			}
 		}
 		virtual void values_read(uint8_t raw, double *threshold, uint16_t bitmask) {
 			for (int fpgaid = 0; fpgaid < 3; fpgaid++) {
 				uint8_t fpga_bit_base = 2 + (3*fpgaid);
 				bool reqcfg		= bitmask & (1 << (fpga_bit_base+1));
 				bool cfgrdy		= bitmask & (1 << (fpga_bit_base+2));
-				dmprintf("C%d: [%u] %s (%s): FPGA[%hhu] Config Reading: reqcfg:%u cfgrdy:%u\n", this->card->get_crate()->get_number(), time(NULL), this->card->get_name().c_str(), this->card->get_slotstring().c_str(), fpgaid, reqcfg, cfgrdy);
+				dmprintf("C%d: [%u] %s (%s): FPGA[%hhu] Config Reading: reqcfg:%u cfgrdy:%u\n", this->card->get_crate()->get_number(), static_cast<uint32_t>(time(NULL)), this->card->get_name().c_str(), this->card->get_slotstring().c_str(), fpgaid, reqcfg, cfgrdy);
 				if (reqcfg && !cfgrdy) {
 					static_cast<GenericUW*>(this->card)->configure_fpga(fpgaid);
 				}
