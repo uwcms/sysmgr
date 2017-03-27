@@ -37,6 +37,9 @@ Summary:  University of Wisconsin IPMI MicroTCA System Manager {{ card['name'] }
 Group:    Applications/XDAQ
 Requires: sysmgr_module_api(%{sysmgr_module_api_version})
 Conflicts: sysmgr < 1.1.5
+{% for depend in card['depends'] %}
+Requires: sysmgr-module-{{ depend }} = %{sysmgr_version}
+{% end %}
 
 %description module-{{ card['name'] }}
 The {{ card['name'] }} card support module for the University of Wisconsin IPMI MicroTCA System Manager.
