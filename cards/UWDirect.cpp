@@ -10,6 +10,8 @@ cardmodule {
 	module = "UWDirect.so"
 	config = {
 		"ivtable=ipconfig.xml",
+		"poll_count=12",
+		"poll_delay=15",
 		"support=WISC CTP-7#19"
 		"support=WISC CIOZ#14"
 	}
@@ -18,6 +20,9 @@ cardmodule {
 
 static std::string ivtable_path;
 static std::map<std::string, uint8_t> supported_cards;
+
+static uint32_t cfg_poll_count = GENERICUW_CONFIG_RETRIES;
+static uint32_t cfg_poll_delay = GENERICUW_CONFIG_RETRY_DELAY;
 
 extern "C" {
 	uint32_t APIVER = 2;
@@ -73,18 +78,32 @@ extern "C" {
 				supported_cards.insert(std::make_pair(cardname, val));
 				dmprintf("UWDirect supporting %s cards\n", value.c_str());
 			}
+			else if (param == "poll_count") {
+				char *eptr = NULL;
+				cfg_poll_count = strtoull(value.c_str(), &eptr, 0);
+				if (!eptr || *eptr != '\0') {
+					mprintf("Could not parse poll_count value \"%s\"\n", value.c_str());
+					return false;
+				}
+			}
+			else if (param == "poll_delay") {
+				char *eptr = NULL;
+				cfg_poll_delay = strtoull(value.c_str(), &eptr, 0);
+				if (!eptr || *eptr != '\0') {
+					mprintf("Could not parse poll_delay value \"%s\"\n", value.c_str());
+					return false;
+				}
+			}
 			else {
 				mprintf("Unknown configuration option \"%s\"\n", param.c_str());
 				return false;
 			}
 		}
 		if (ivtable_path == "") {
-			mprintf("No ivtable xml specified.  Unable to service cards.\n");
-			return false;
+			mprintf("No ivtable xml specified.  UWDirect will not service cards.\n");
 		}
-		if (supported_cards.size() == 0) {
-			mprintf("No supported cards specified.  Unable to service cards.\n");
-			return false;
+		else if (supported_cards.size() == 0) {
+			mprintf("No supported cards specified.  UWDirect will not service cards.\n");
 		}
 		return true;
 	}
@@ -92,7 +111,7 @@ extern "C" {
 		for (std::map<std::string, uint8_t>::iterator it = supported_cards.begin(); it != supported_cards.end(); it++) {
 			if (it->first == name) {
 				dmprintf("Found and supporting card %s with UWDirect\n", name.c_str());
-				return new UWDirect(crate, name, sdrbuf, sdrbuflen, ivtable_path, it->second);
+				return new UWDirect(crate, name, sdrbuf, sdrbuflen, ivtable_path, it->second, cfg_poll_count, cfg_poll_delay);
 			}
 		}
 		return NULL;

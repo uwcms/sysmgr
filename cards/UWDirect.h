@@ -13,8 +13,8 @@ class UWDirect : public GenericUW {
 		uint8_t raw_config_sensor_id;
 
 	public:
-		UWDirect(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen, std::string ivtable_path, uint8_t raw_config_sensor_id)
-			: GenericUW(crate, name, sdrbuf, sdrbuflen, ivtable_path), raw_config_sensor_id(raw_config_sensor_id) { };
+		UWDirect(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen, std::string ivtable_path, uint8_t raw_config_sensor_id, uint32_t poll_count = GENERICUW_CONFIG_RETRIES, uint32_t poll_delay = GENERICUW_CONFIG_RETRY_DELAY)
+			: GenericUW(crate, name, sdrbuf, sdrbuflen, ivtable_path, poll_count, poll_delay), raw_config_sensor_id(raw_config_sensor_id) { };
 
 		virtual Sensor *instantiate_sensor(uint8_t sensor_number, const void *sdr, uint8_t sdrlen);
 };

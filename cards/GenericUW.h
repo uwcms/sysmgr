@@ -137,8 +137,11 @@ class GenericUW : public Card {
 		TaskQueue::taskid_t set_clock_task;
 		std::string ivtable_path;
 	public:
-		GenericUW(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen, std::string ivtable_path)
-			: Card(crate, name, sdrbuf, sdrbuflen), set_clock_task(0), ivtable_path(ivtable_path) {
+		const uint32_t cfg_poll_count;
+		const uint32_t cfg_poll_delay;
+
+		GenericUW(Crate *crate, std::string name, void *sdrbuf, uint8_t sdrbuflen, std::string ivtable_path, uint32_t poll_count = GENERICUW_CONFIG_RETRIES, uint32_t poll_delay = GENERICUW_CONFIG_RETRY_DELAY)
+			: Card(crate, name, sdrbuf, sdrbuflen), set_clock_task(0), ivtable_path(ivtable_path), cfg_poll_count(poll_count), cfg_poll_delay(poll_delay) {
 				// Set the internal clock on Wisconsin MMCs
 				this->set_clock_cb(NULL);
 			};
@@ -171,7 +174,7 @@ class UW_FPGAConfig_Sensor : public Sensor {
 		TaskQueue::taskid_t scan_retry_task;
 	public:
 		UW_FPGAConfig_Sensor(GenericUW *card, uint8_t sensor_number, const void *sdrbuf, uint8_t sdrbuflen)
-			: Sensor(card, sensor_number, sdrbuf, sdrbuflen), scan_retries(0), scan_retry_task(0) { this->scan_sensor(GENERICUW_CONFIG_RETRIES); };
+			: Sensor(card, sensor_number, sdrbuf, sdrbuflen), scan_retries(0), scan_retry_task(0) { this->scan_sensor(static_cast<GenericUW*>(this->card)->cfg_poll_count); };
 
 		virtual ~UW_FPGAConfig_Sensor() {
 			if (this->scan_retry_task)
@@ -188,13 +191,13 @@ class UW_FPGAConfig_Sensor : public Sensor {
 				case 4:  // CFGRDY0
 				case 7:  // CFGRDY1
 				case 10: // CFGRDY2
-					this->scan_sensor(GENERICUW_CONFIG_RETRIES);
+					this->scan_sensor(static_cast<GenericUW*>(this->card)->cfg_poll_count);
 			}
 		}
 
 		virtual void crate_connected() {
 			dmprintf("C%d: GenericUW in %s: crate_connection() received.  Scanning.\n", CRATE_NO, this->card->get_slotstring().c_str());
-			this->scan_sensor(GENERICUW_CONFIG_RETRIES);
+			this->scan_sensor(static_cast<GenericUW*>(this->card)->cfg_poll_count);
 		}
 
 		virtual void scan_sensor(int retries) {
@@ -207,7 +210,7 @@ class UW_FPGAConfig_Sensor : public Sensor {
 		virtual void scan_sensor_attempt(void *cb_null) {
 			if (this->card->get_crate()->ctx.sel == NULL) {
 				// The crate is offline.  Hold off until it returns.
-				this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+GENERICUW_CONFIG_RETRY_DELAY, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
+				this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+static_cast<GenericUW*>(this->card)->cfg_poll_delay, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
 
 				// Do not decrement retry count here.
 				// We're postponing this one, not consuming it.
@@ -234,7 +237,7 @@ class UW_FPGAConfig_Sensor : public Sensor {
 
 			// We didn't return.  Cycle through once more.
 			if (this->scan_retries-- > 0)
-				this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+GENERICUW_CONFIG_RETRY_DELAY, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
+				this->scan_retry_task = THREADLOCAL.taskqueue.schedule(time(NULL)+static_cast<GenericUW*>(this->card)->cfg_poll_delay, callback<void>::create<UW_FPGAConfig_Sensor,&UW_FPGAConfig_Sensor::scan_sensor_attempt>(this), NULL);
 			else
 				this->scan_retry_task = 0;
 		}

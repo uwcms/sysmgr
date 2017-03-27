@@ -1,5 +1,6 @@
 #include <time.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <typeinfo>
 
 #include "GenericUW.h"
@@ -9,6 +10,8 @@ cardmodule {
 	module = "GenericUW.so"
 	config = {
 		"ivtable=GenericUW_IVTable.xml",
+		"poll_count=12",
+		"poll_delay=15",
 		"support=WISC CTP-7",
 		"support=WISC CTP-6",
 		"support=WISC CIOX",
@@ -19,6 +22,9 @@ cardmodule {
 
 static std::string ivtable_path;
 static std::vector<std::string> supported_cards;
+
+static uint32_t cfg_poll_count = GENERICUW_CONFIG_RETRIES;
+static uint32_t cfg_poll_delay = GENERICUW_CONFIG_RETRY_DELAY;
 
 extern "C" {
 	uint32_t APIVER = 2;
@@ -50,18 +56,32 @@ extern "C" {
 				supported_cards.push_back(value);
 				dmprintf("GenericUW supporting %s cards\n", value.c_str());
 			}
+			else if (param == "poll_count") {
+				char *eptr = NULL;
+				cfg_poll_count = strtoull(value.c_str(), &eptr, 0);
+				if (!eptr || *eptr != '\0') {
+					mprintf("Could not parse poll_count value \"%s\"\n", value.c_str());
+					return false;
+				}
+			}
+			else if (param == "poll_delay") {
+				char *eptr = NULL;
+				cfg_poll_delay = strtoull(value.c_str(), &eptr, 0);
+				if (!eptr || *eptr != '\0') {
+					mprintf("Could not parse poll_delay value \"%s\"\n", value.c_str());
+					return false;
+				}
+			}
 			else {
 				mprintf("Unknown configuration option \"%s\"\n", param.c_str());
 				return false;
 			}
 		}
 		if (ivtable_path == "") {
-			mprintf("No ivtable xml specified.  Unable to service cards.\n");
-			return false;
+			mprintf("No ivtable xml specified.  GenericUW will not service cards.\n");
 		}
-		if (supported_cards.size() == 0) {
-			mprintf("No supported cards specified.  Unable to service cards.\n");
-			return false;
+		else if (supported_cards.size() == 0) {
+			mprintf("No supported cards specified.  GenericUW will not service cards.\n");
 		}
 		return true;
 	}
@@ -69,7 +89,7 @@ extern "C" {
 		for (std::vector<std::string>::iterator it = supported_cards.begin(); it != supported_cards.end(); it++) {
 			if (*it == name) {
 				dmprintf("Found and supporting card %s with GenericUW\n", name.c_str());
-				return new GenericUW(crate, name, sdrbuf, sdrbuflen, ivtable_path);
+				return new GenericUW(crate, name, sdrbuf, sdrbuflen, ivtable_path, cfg_poll_count, cfg_poll_delay);
 			}
 		}
 		return NULL;
