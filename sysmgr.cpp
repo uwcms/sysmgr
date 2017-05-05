@@ -7,6 +7,7 @@
 #include <freeipmi/freeipmi.h>
 #include <grp.h>
 #include <inttypes.h>
+#include <iostream>
 #include <limits.h>
 #include <pthread.h>
 #include <pwd.h>
@@ -269,7 +270,7 @@ int main(int argc, char *argv[])
 
 	opt::options_description option_all("Options");
 	option_all.add_options()
-		("help", "help")
+		("help,h", "help")
 		("config,c", opt::value<std::string>(&configfile)->default_value(CONFIG_PATH "/" CONFIG_FILE), "config file path")
 		("user,u", opt::value<std::string>(&setuser)->default_value(""), "setuid user or uid")
 		("group,g", opt::value<std::string>(&setgroup)->default_value(""), "setgid group or gid")
@@ -280,9 +281,17 @@ int main(int argc, char *argv[])
 		opt::variables_map vm;
 		opt::store(opt::command_line_parser(argc, argv).options(option_all).positional(option_pos).run(), vm);
 		opt::notify(vm);
-	}
+
+		if (vm.count("help")) {
+			printf("%s [options]\n", argv[0]);
+			printf("\n");
+			std::cout << option_all << "\n";
+			exit(0);
+		}
+		}
 	catch (std::exception &e) {
-		printf("Argument Error %s\n\n", e.what());
+		mprintf("Argument Error %s\n\n", e.what());
+		mprintf("Try --help\n");
 		return -1;
 	}
 
