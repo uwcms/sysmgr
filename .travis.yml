@@ -24,3 +24,4 @@ addons:
             - python3
             - python-tornado
             - libboost-dev
+            - libboost-program-options-dev

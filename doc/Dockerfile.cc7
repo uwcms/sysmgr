@@ -20,7 +20,8 @@ RUN \
 	yum update -y && \
 	yum install -y \
 		python python2-future python34 python-tornado \
-		libxml++-devel libconfuse-devel freeipmi-devel && \
+		libxml++-devel libconfuse-devel freeipmi-devel \
+		boost-devel && \
 	yum clean all
 
 RUN echo -e '[sysmgr-local]\nname=Local System Manager Repository\nbaseurl=file:///sysmgr/rpms\ngpgcheck=0\nenabled=1\nskip_if_unavailable=1' > /etc/yum.repos.d/sysmgr-local.repo
