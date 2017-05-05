@@ -23,3 +23,4 @@ addons:
             - libxml++2.6-dev
             - python3
             - python-tornado
+            - libboost-dev

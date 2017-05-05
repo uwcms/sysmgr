@@ -2,7 +2,7 @@ DEPOPTS = -MMD -MF .dep/$(subst /,^,$(subst .obj/,,$@)).d -MP
 CCOPTS = $(DEPOPTS) -ggdb -Wall -pthread
 
 IPMILIB_PATHS := $(IPMILIB_PATHS)
-IPMILIB_LINKS := $(IPMILIB_LINKS) -lfreeipmi -lconfuse
+IPMILIB_LINKS := $(IPMILIB_LINKS) -lfreeipmi -lconfuse -lboost_program_options
 LIBS = $(IPMILIB_LINKS) -ldl
 
 all: sysmgr clientapi cards sysmgr.example.conf
@@ -13,7 +13,7 @@ sysmgr: .obj/sysmgr.o .obj/mprintf.o .obj/scope_lock.o .obj/TaskQueue.o .obj/Cra
 #.PHONY: .obj/versioninfo.o
 .obj/versioninfo.o: $(shell git ls-files)
 	@mkdir -p .dep/ "$(dir $@)"
-	echo "const char *GIT_BRANCH = \"$$(git rev-parse --abbrev-ref HEAD)\"; const char *GIT_COMMIT = \"$$(git describe)\"; const char *GIT_DIRTY = \"$$(git status --porcelain -z | sed -re 's/\x0/\\\\n/g')\";" | tee -a /dev/stderr | g++ $(CCOPTS) $(DEPOPTS) -c -o $@ -xc++ -
+	echo "const char *GIT_BRANCH = \"$$(git rev-parse --abbrev-ref HEAD)\"; const char *GIT_COMMIT = \"$$(git describe)\"; const char *GIT_DIRTY = \"$$(git status --porcelain -z | sed -re 's/\x0/\\n/g')\";" | tee -a /dev/stderr | g++ $(CCOPTS) $(DEPOPTS) -c -o $@ -xc++ -
 
 .obj/mgmt_protocol.o: mgmt_protocol.cpp commandindex.h commandindex.inc
 

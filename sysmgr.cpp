@@ -1,18 +1,23 @@
-#include <stdio.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <inttypes.h>
-#include <freeipmi/freeipmi.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <time.h>
-#include <exception>
-#include <typeinfo>
+#include <boost/program_options.hpp>
 #include <confuse.h>
-#include <limits.h>
 #include <dlfcn.h>
+#include <errno.h>
+#include <exception>
+#include <fcntl.h>
+#include <freeipmi/freeipmi.h>
+#include <grp.h>
+#include <inttypes.h>
+#include <limits.h>
+#include <pthread.h>
+#include <pwd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <time.h>
+#include <typeinfo>
+#include <unistd.h>
+namespace opt = boost::program_options;
 
 #include "sysmgr.h"
 #include "scope_lock.h"
@@ -256,12 +261,101 @@ int main(int argc, char *argv[])
 	pthread_setspecific(threadid_key, &threadid_main);
 
 	mprintf("University of Wisconsin IPMI MicroTCA System Manager\n");
-	if (argc > 1 && strcmp(argv[1], "--version") == 0) {
+
+	std::string configfile;
+	std::string setuser;
+	std::string setgroup;
+	bool print_version;
+
+	opt::options_description option_all("Options");
+	option_all.add_options()
+		("help", "help")
+		("config,c", opt::value<std::string>(&configfile)->default_value(CONFIG_PATH "/" CONFIG_FILE), "config file path")
+		("user,u", opt::value<std::string>(&setuser)->default_value(""), "setuid user or uid")
+		("group,g", opt::value<std::string>(&setgroup)->default_value(""), "setgid group or gid")
+		("version,V", opt::bool_switch(&print_version)->default_value(false), "show version info");
+	opt::positional_options_description option_pos;
+	option_pos.add("config", 1);
+	try {
+		opt::variables_map vm;
+		opt::store(opt::command_line_parser(argc, argv).options(option_all).positional(option_pos).run(), vm);
+		opt::notify(vm);
+	}
+	catch (std::exception &e) {
+		printf("Argument Error %s\n\n", e.what());
+		return -1;
+	}
+
+	/*
+	 * Print Version & Exit
+	 */
+	if (print_version) {
 		mprintf("\nCompiled from %s@%s\n", (GIT_BRANCH[0] ? GIT_BRANCH : "git-archive"), (GIT_COMMIT[0] ? GIT_COMMIT : "$Format:%H$"));
 		if (strlen(GIT_DIRTY) > 1)
 			mprintf("%s", GIT_DIRTY);
 		mprintf("\n");
 		return 0;
+	}
+
+	/*
+	 * Set UID / GID
+	 */
+	gid_t gid;
+	if (setgroup.size()) {
+		const char *setgroup_parse = setgroup.c_str();
+		char *endptr = NULL;
+		gid = strtoull(setgroup_parse, &endptr, 10);
+		if (!endptr || endptr == setgroup_parse) {
+			// Non-numeric.
+			struct group *grp = getgrnam(setgroup_parse);
+			if (!grp) {
+				mprintf("Unknown group for setgid.  Aborting.\n");
+				exit(1);
+			}
+			gid = grp->gr_gid;
+		}
+		else if (gid == ULONG_MAX || !endptr || *endptr) {
+			mprintf("Failed to parse group ID.  Aborting.\n");
+			exit(1);
+		}
+	}
+
+	uid_t uid;
+	if (setuser.size()) {
+		const char *setuser_parse = setuser.c_str();
+		char *endptr = NULL;
+		uid = strtoull(setuser_parse, &endptr, 10);
+		if (!endptr || endptr == setuser_parse) {
+			// Non-numeric.
+			struct passwd *usr = getpwnam(setuser_parse);
+			if (!usr) {
+				mprintf("Unknown user for setuid.  Aborting.\n");
+				exit(1);
+			}
+			uid = usr->pw_uid;
+		}
+		else if (uid == ULONG_MAX || !endptr || *endptr) {
+			mprintf("Failed to parse user ID.  Aborting.\n");
+			exit(1);
+		}
+	}
+
+	if (setgroup.size()) {
+		if (getgroups(0, NULL) != 0) {
+			perror("Unable to clear supplementary groups list");
+			exit(1);
+		}
+		if (setresgid(gid, gid, gid) != 0) {
+			perror("Unable to set GID");
+			exit(1);
+		}
+	}
+
+	if (setuser.size()) {
+		if (setresuid(uid, uid, uid) != 0) {
+			perror("Unable to set UID");
+			exit(1);
+		}
 	}
 
 	/*
@@ -310,17 +404,13 @@ int main(int argc, char *argv[])
 	cfg_set_validate_func(cfg, "crate|host", &cfg_validate_hostname);
 	cfg_set_validate_func(cfg, "socket_port", &cfg_validate_port);
 
-	if (argc >= 2 && access(argv[1], R_OK) == 0) {
-		if(cfg_parse(cfg, argv[1]) == CFG_PARSE_ERROR)
-			exit(1);
-	}
-	else if (access(CONFIG_PATH "/" CONFIG_FILE, R_OK) == 0) {
-		if(cfg_parse(cfg, CONFIG_PATH "/" CONFIG_FILE) == CFG_PARSE_ERROR)
+	if (access(configfile.c_str(), R_OK) == 0) {
+		if(cfg_parse(cfg, configfile.c_str()) == CFG_PARSE_ERROR)
 			exit(1);
 	}
 	else {
-		printf("Config file %s not found, and no argument supplied.\n", CONFIG_PATH "/" CONFIG_FILE);
-		printf("Try: %s sysmgr.conf\n", argv[0]);
+		mprintf("Config file %s not found.\n", configfile.c_str());
+		mprintf("Try: %s -c sysmgr.conf\n", argv[0]);
 		exit(1);
 	}
 

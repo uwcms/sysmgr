@@ -23,6 +23,7 @@
 exec="/usr/bin/sysmgr"
 prog="sysmgr"
 config="/etc/sysmgr/sysmgr.conf"
+extra_args=""
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
@@ -33,7 +34,7 @@ start() {
     [ -e $config ] || exit 6
     echo -n $"Starting $prog: "
     # if not running, start it up here, usually something like "daemon $exec"
-    $prog $config
+    $prog -c $config $extra_args
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $lockfile
