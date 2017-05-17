@@ -12,7 +12,7 @@ cardmodule {
 		"ivtable=ipconfig.xml",
 		"poll_count=12",
 		"poll_delay=15",
-		"support=WISC CTP-7#19"
+		"support=WISC CTP-7#19",
 		"support=WISC CIOZ#14"
 	}
 }
