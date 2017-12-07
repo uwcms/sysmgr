@@ -12,9 +12,9 @@ std::string stdsprintf(const char *fmt, ...) {
 	va_list va2;
 	va_start(va, fmt);
 	va_copy(va2, va);
-	size_t s = vsnprintf(NULL, 0, fmt, va);
+	size_t s = vsnprintf(NULL, 0, fmt, va) + 1; // returns num_chars (exclude trailing NUL), takes num_chars (include trailing NUL)
 	char str[s];
-	vsnprintf(str, s+1, fmt, va2);
+	vsnprintf(str, s, fmt, va2);
 	va_end(va);
 	va_end(va2);
 	return std::string(str);
