@@ -334,7 +334,7 @@ void IVTableParser::on_start_element(const Glib::ustring& tagname,
 			this->parse_state = PST_FPGA;
 		}
 		else if (this->parse_state == PST_FPGA) {
-			LEVEL_CHECK("<FPGA>", NULL);
+			THROWMSG(ConfigParseException, "Error parsing config file (in Crate %hhu, Slot %hhu, Card \"%s\", FPGA %hhu): Found a %s tag at the <FPGA> level", this->cur_crate, this->cur_slot, this->cur_card.c_str(), this->cur_fpga, tagname.c_str());
 		}
 		else {
 			THROWMSG(ConfigParseException, "Error parsing config file (in Crate %hhu, Slot %hhu, Card \"%s\", FPGA %hhu): Parser is in an unknown state encountering %s tag", this->cur_crate, this->cur_slot, this->cur_card.c_str(), this->cur_fpga, tagname.c_str());
