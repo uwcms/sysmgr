@@ -2,9 +2,9 @@ FROM cern/cc7-base
 MAINTAINER Jesra Tikalsky <jtikalsky@hep.wisc.edu>
 
 RUN \
-	curl -s https://www.hep.wisc.edu/uwcms-repos/el7/release/uwcms.repo -o /etc/yum.repos.d/uwcms.repo && \
-	curl -s https://www.hep.wisc.edu/uwcms-repos/el7/unstable/uwcms-unstable.repo -o /etc/yum.repos.d/uwcms-unstable.repo && \
-	curl -s https://www.hep.wisc.edu/uwcms-repos/5B766A47.asc -o /5B766A47.asc && \
+	curl -ks https://www.hep.wisc.edu/uwcms-repos/el7/release/uwcms.repo -o /etc/yum.repos.d/uwcms.repo && \
+	curl -ks https://www.hep.wisc.edu/uwcms-repos/el7/unstable/uwcms-unstable.repo -o /etc/yum.repos.d/uwcms-unstable.repo && \
+	curl -ks https://www.hep.wisc.edu/uwcms-repos/5B766A47.asc -o /5B766A47.asc && \
 	rpm --import /5B766A47.asc && \
 	rm /5B766A47.asc && \
 	yum update -y && \
