@@ -123,7 +123,7 @@ void GenericUW::hotswap_event(uint8_t oldstate, uint8_t newstate)
 void GenericUW::set_clock()
 {
 	fiid_template_t tmpl_set_clock_rq =
-	{ 
+	{
 		{ 8, "cmd", FIID_FIELD_REQUIRED | FIID_FIELD_LENGTH_FIXED},
 		{ 32, "time", FIID_FIELD_REQUIRED | FIID_FIELD_LENGTH_FIXED},
 		{ 0, "", 0}
@@ -180,7 +180,7 @@ void GenericUW::configure_fpga(uint8_t fpgaid)
 		ivstr += static_cast<char>(*it);
 
 	fiid_template_t tmpl_fpgaconfig_rq =
-	{ 
+	{
 		{ 8, "cmd", FIID_FIELD_REQUIRED | FIID_FIELD_LENGTH_FIXED},
 		{ 8, "port", FIID_FIELD_REQUIRED | FIID_FIELD_LENGTH_FIXED},
 		{ 16, "address", FIID_FIELD_REQUIRED | FIID_FIELD_LENGTH_FIXED},
@@ -207,7 +207,7 @@ void GenericUW::configure_fpga(uint8_t fpgaid)
 	 */
 
 	fiid_template_t tmpl_fpga_ctrlwrite_rq =
-	{ 
+	{
 		{ 8, "cmd", FIID_FIELD_REQUIRED | FIID_FIELD_LENGTH_FIXED},
 		{ 8, "port", FIID_FIELD_REQUIRED | FIID_FIELD_LENGTH_FIXED},
 		{ 1, "clear", FIID_FIELD_REQUIRED | FIID_FIELD_LENGTH_FIXED},
@@ -282,8 +282,8 @@ void IVTableParser::on_start_element(const Glib::ustring& tagname,
 {
 	try {
 		std::map<std::string, std::string> attrs;
-		for(xmlpp::SaxParser::AttributeList::const_iterator iter = attributes.begin(); iter != attributes.end(); ++iter)
-			attrs.insert(std::pair<const Glib::ustring&, const Glib::ustring&>(iter->name.raw(), iter->value.raw()));
+		for(auto iter = attributes.begin(); iter != attributes.end(); ++iter)
+			attrs.insert(std::make_pair<std::string, std::string>(iter->name.c_str(), iter->value.c_str()));
 
 #define LEVEL_CHECK(curtag, tag) \
 			if (tagname != tag) \
@@ -380,7 +380,7 @@ void IVTableParser::on_characters(const Glib::ustring& text)
 		return;
 
 	std::vector<uint8_t> bytes;
-	std::string str = text.raw();
+	std::string str = text.c_str();
 	size_t pos = 0;
 	size_t delimpos = 0;
 	do {
