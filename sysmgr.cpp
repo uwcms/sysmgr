@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
 	if (print_version) {
 		mprintf("\nCompiled from %s@%s\n", (GIT_BRANCH[0] ? GIT_BRANCH : "git-archive"), (GIT_COMMIT[0] ? GIT_COMMIT : "$Format:%H$"));
 		if (strlen(GIT_DIRTY) > 1)
-			mprintf("%s", GIT_DIRTY);
+			mprintf("%s\nBuilt %s %s\n", GIT_DIRTY, __DATE__, __TIME__);
 		mprintf("\n");
 		return 0;
 	}
