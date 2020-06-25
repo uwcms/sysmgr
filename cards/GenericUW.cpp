@@ -282,7 +282,7 @@ void IVTableParser::on_start_element(const Glib::ustring& tagname,
 {
 	try {
 		std::map<std::string, std::string> attrs;
-		for(xmlpp::SaxParser::AttributeList::const_iterator iter = attributes.cbegin(); iter != attributes.cend(); ++iter)
+		for(xmlpp::SaxParser::AttributeList::const_iterator iter = attributes.begin(); iter != attributes.end(); ++iter)
 			attrs.insert(std::make_pair<std::string, std::string>(iter->name.c_str(), iter->value.c_str()));
 
 #define LEVEL_CHECK(curtag, tag) \
