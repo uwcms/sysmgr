@@ -14,7 +14,8 @@ RUN \
 
 RUN echo 'ALL ALL = (ALL) NOPASSWD: ALL' > /etc/sudoers && \
 	for I in $(seq 1000 10000); do echo "u${I}:x:${I}:${I}::/root:/bin/bash" >> /etc/passwd; done && \
-	for I in $(seq 1000 10000); do echo "g${I}:x:${I}:" >> /etc/group; done
+	for I in $(seq 1000 10000); do echo "g${I}:x:${I}:" >> /etc/group; done && \
+	sed -i -r -e 's/^root:[^:]+:/root::/' /etc/shadow
 
 RUN \
 	yum update -y && \
